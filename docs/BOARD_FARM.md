@@ -15,7 +15,7 @@ This document describes how to physically setup a Board Farm.
 Minimal Example
 ---------------
 
-![Image of Router, Network-controlled power switch, and computers](https://github.qualcomm.com/raw/streamboost/openwrt-tests/master/docs/Simple_Board_Farm.jpg "Minimal Test Station")
+![Image of Router, Network-controlled power switch, and computers](https://raw.githubusercontent.com/qca/boardfarm/master/docs/Simple_Board_Farm.jpg "Minimal Test Station")
 
 This is one router test station. The black cylinder in the center is 1 router. The web-controlled power switch in the upper-left allows devices to be remotely power-cycled. White Ethernet cables connect devices to the local network. Three, small computers run Debian Linux. One computer is connected to the router's LAN, one computer is connected to the router's WAN, and the last computer is connected to the Serial Console of the router.
 
