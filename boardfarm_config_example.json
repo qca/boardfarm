@@ -1,0 +1,22 @@
+{
+    "board01": {
+        "board_type": "apXYZ",
+        "conn_cmd": "telnet consoleserver.mysite.com 6001",
+        "lan_device": "machine01",
+        "location": "austin",
+        "powerip": "pdu.mysite.com",
+        "powerport": "8",
+        "wan_device": "machine02",
+        "notes": "Old board"
+    },
+    "board02": {
+        "board_type": "apXYZ",
+        "conn_cmd": "telnet consoleserver.mysite.com 6002",
+        "lan_device": "machine03",
+        "location": "austin",
+        "powerip": "pdu.mysite.com",
+        "powerport": "3",
+        "wan_device": "machine04",
+        "notes": "Has 512 MB of memory"
+    }
+}
