@@ -304,13 +304,13 @@ class OpenWrtRouter(base.BaseDevice):
     def get_wan_iface(self):
         '''Return name of WAN interface.'''
         self.sendline('\nuci show network.wan.ifname')
-        self.expect('wan.ifname=([a-zA-Z0-9\.-]*)\r\n')
+        self.expect("wan.ifname='?([a-zA-Z0-9\.-]*)'?\r\n")
         return self.match.group(1)
 
     def get_wan_proto(self):
         '''Return protocol of WAN interface, e.g. dhcp.'''
         self.sendline('\nuci show network.wan.proto')
-        self.expect('wan.proto=([a-zA-Z0-9\.-]*)\r\n')
+        self.expect("wan.proto='?([a-zA-Z0-9\.-]*)'?\r\n")
         return self.match.group(1)
 
     def setup_uboot_network(self, TFTP_SERVER="192.168.0.1"):
