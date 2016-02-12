@@ -106,7 +106,7 @@ class SentrySwitchedCDU(PowerDevice):
 
 class HumanButtonPusher(PowerDevice):
     '''
-    Tell a person to reboot the router himself.
+    Tell a person to physically reboot the router.
     '''
     def __init__(self):
         PowerDevice.__init__(self, None)
