@@ -38,12 +38,13 @@ class RandomWebBrowse(rootfs_boot.RootFSBootTest):
         user = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0'
         cmd = "wget -Hp http://%(url)s " + \
               "-e robots=off " + \
-              "-P /tmp/ " + \
+              "-P /tmp/webbrowse-test " + \
               "-T 10 " + \
               "--header='Accept: text/html' " + \
               "-U '%(user)s' " + \
               "2>&1 | tail -1"
         for url in urls:
+            lan.sendline("mkdir -p /tmp/webbrowse-test")
             print("\n%s" % url)
             tmp = cmd % {'url': url, 'user': user}
             lan.sendline(tmp)
@@ -52,5 +53,5 @@ class RandomWebBrowse(rootfs_boot.RootFSBootTest):
             except Exception:
                 lan.sendcontrol('c')
             lan.expect(prompt)
-            lan.sendline("rm -rf /tmp/*")
+            lan.sendline("rm -rf /tmp/webbrowse-test")
             lan.expect(prompt)
