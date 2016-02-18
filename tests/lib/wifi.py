@@ -19,7 +19,7 @@ def wifi_interface(console):
 
     if wlan_iface is None:
         console.sendline('uci show wireless | grep wireless.*0.*type=')
-        i = console.expect(["type=mac80211", "type=qcawifi"])
+        i = console.expect(["type='?mac80211'?", "type='?qcawifi'?"])
         if i == 0:
             wlan_iface = "wlan0"
         elif i == 1:

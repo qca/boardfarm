@@ -64,3 +64,9 @@ target/
 
 # pyenv
 .python-version
+
+# Test results
+results/
+
+# Text editor temporally files
+*.swp
