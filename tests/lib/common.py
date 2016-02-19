@@ -81,6 +81,20 @@ def clear_buffer(console):
     except:
         pass
 
+def phantom_webproxy_driver(ipport):
+    '''
+    Use this if you started web proxy on a machine connected to router's LAN.
+    '''
+    service_args = [
+        '--proxy=' + ipport,
+        '--proxy-type=http',
+    ]
+    print("Attempting to setup Phantom.js via proxy %s" % ipport)
+    driver = webdriver.PhantomJS(service_args=service_args)
+    driver.set_window_size(1024, 768)
+    driver.set_page_load_timeout(30)
+    return driver
+
 def firefox_webproxy_driver(ipport):
     '''
     Use this if you started web proxy on a machine connected to router's LAN.
