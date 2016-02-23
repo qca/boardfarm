@@ -171,7 +171,7 @@ class DebianBox(base.BaseDevice):
         self.sendline('EOF')
         self.expect(self.prompt)
         self.sendline('/etc/init.d/isc-dhcp-server start')
-        self.expect('Starting ISC DHCP server.*dhcpd.')
+        self.expect(['Starting ISC DHCP server.*dhcpd.', 'Starting isc-dhcp-server.*'])
         self.expect(self.prompt)
 
         # configure routing
