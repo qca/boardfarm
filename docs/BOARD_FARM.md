@@ -25,7 +25,7 @@ Ingredients
 The smallest board farm requires:
 
 * 1 board (e.g. a router).
-* 1 console server.
+* 1 console server. (or local serial connection (see below)
 * 1 network-controlled power switch.
 * 2 computers each with 2 network interfaces - Preferably Debian Linux. Can be small Raspberry PI computers, or more powerful computers (to acheive gigabit throughput).
 * Several ethernet cables, and serial connector for the board.
@@ -42,7 +42,7 @@ Here we assume the "board" you wish to test is a router.
 Ethernet connections:
 
     Local Network <---> eth0-Computer-eth1 <---> LAN-Router-WAN <---> eth1-Computer-eth0 <---> Local Network
-    
+
 Serial Connections:
 
     Console server <---> Router
@@ -106,3 +106,22 @@ Where:
 * `conn_cmd` is the command to run to connect to the board
 * `lan_device` and `wan_device` are the devices connected to the board (must have ssh server)
 * `powerip` and `powerport` are the network-control power unit and outlet to reset the board
+
+Using a local serial port (i.e. no console server)
+----------------------
+Boardfarm also supports using a local serial port. This is useful when you have
+your PC connected directly to the device under test. To do so, you'd modify your
+board farm JSON config file as follows:
+
+* add `"connection_type": "local_serial"` to your board entry
+* replace the current `conn_cmd` element with with `"conn_cmd": "cu -l <port> -s <speed>"` in your board entry
+
+Where:
+* `port` is the path to your serial port. One example would be `/dev/ttyUSB0`.
+* `speed` is the baud rate for the serial port connection. One example would be `115200`.
+
+Additionally, you must install the `cu` program on your connecting computer. If running,
+a Debian based system, you would run:
+```
+apt-get install cu
+```
