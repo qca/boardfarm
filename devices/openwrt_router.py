@@ -58,7 +58,7 @@ class OpenWrtRouter(base.BaseDevice):
             connection_type = "ser2net"
 
         self.logfile_read = output
-        self.connection = connection_decider.connection(connection_type, device=self, **kwargs)
+        self.connection = connection_decider.connection(connection_type, device=self, conn_cmd=conn_cmd, **kwargs)
         self.connection.connect()
 
         self.power = power.get_power_device(power_ip, power_outlet)
