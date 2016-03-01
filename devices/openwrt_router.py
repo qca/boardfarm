@@ -21,6 +21,7 @@ import time
 import error_detect
 import power
 import common
+import connection_decider
 
 
 # To Do: maybe make this config variable
@@ -55,7 +56,7 @@ class OpenWrtRouter(base.BaseDevice):
 
         if connection_type is None:
             connection_type = "ser2net"
-            
+
         self.logfile_read = output
         self.connection = connection_decider.connection(connection_type, device=self, **kwargs)
         self.connection.connect()
