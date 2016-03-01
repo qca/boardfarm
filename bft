@@ -54,7 +54,8 @@ def main():
                                                  power_ip=config.board.get('powerip', None),
                                                  power_outlet=config.board.get('powerport', None),
                                                  web_proxy=config.board.get('lan_device', None),
-                                                 tftp_server=config.board.get('wan_device', None))
+                                                 tftp_server=config.board.get('wan_device', None),
+                                                 connection_type=config.board.get('connection_type', None))
             print_bold("dut device console = %s" % colored("black", 'grey'))
             # spawn wan and lan consoles if present
             config.wan = None
