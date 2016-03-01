@@ -49,19 +49,17 @@ class OpenWrtRouter(base.BaseDevice):
                  password='bigfoot1',
                  web_proxy=None,
                  tftp_server=None,
+                 connection_type=None,
                  **kwargs):
-        pexpect.spawn.__init__(self,
-                               command='/bin/bash',
-                               args=['-c', conn_cmd],
-                               **kwargs)
-        try:
-            result = self.expect(["assword:", "ser2net", "OpenGear Serial Server"])
-        except pexpect.EOF as e:
-            raise Exception("Board is in use (connection refused).")
-        if result == 0:
-            self.sendline(password)
-            self.expect("OpenGear Serial Server")
+
+
+        if connection_type is None:
+            connection_type = "ser2net"
+            
         self.logfile_read = output
+        self.connection = connection_decider.connection(connection_type, device=self, **kwargs)
+        self.connection.connect()
+
         self.power = power.get_power_device(power_ip, power_outlet)
         self.model = model
         self.web_proxy = web_proxy
