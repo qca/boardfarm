@@ -33,3 +33,11 @@ class CheckQosScripts(rootfs_boot.RootFSBootTest):
             return   # pass if not installed
         assert False # fail if installed
 
+class OpkgUpdate(rootfs_boot.RootFSBootTest):
+    '''Opkg is able to update list of packages.'''
+    def runTest(self):
+        board.sendline('\nopkg update && echo "All package lists updated"')
+        board.expect('Updated list of available packages')
+        board.expect('All package lists updated')
+        board.expect(prompt)
+
