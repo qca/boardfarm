@@ -42,12 +42,11 @@ def spawn_ssh_pexpect(ip, user='root', pw='bigfoot1', prompt=None, port="22", vi
         p = pexpect.spawn("ssh %s@%s -p %s -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
                                             % (user, ip, port))
 
-    i = p.expect(["yes/no", "assword:", "Linux"], timeout=30)
+    i = p.expect(["yes/no", "assword:", "Last login"], timeout=30)
     if i == 0:
         p.sendline("yes")
-        p.expect("assword:")
-        p.sendline(pw)
-    elif i == 1:
+        i = self.expect(["Last login", "assword:"])
+    if i == 1:
         p.sendline(pw)
     else:
         pass
