@@ -125,3 +125,7 @@ a Debian based system, you would run:
 ```
 apt-get install cu
 ```
+If running openSUSE, you would run:
+```
+zypper in uucp
+```
