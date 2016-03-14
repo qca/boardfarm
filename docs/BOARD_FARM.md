@@ -1,5 +1,5 @@
 Board Farm
-----------
+==========
 
 A "Board Farm" is simply one or more boards (such as routers) connected to a network so that they are remotely accessable to testers or developers.
 
@@ -12,15 +12,16 @@ There are many benefits to building a board farm, including:
 This document describes how to physically setup a Board Farm.
 
 
-Minimal Example
----------------
+Examples
+--------
+
+### Minimal Physical Example
 
 ![Image of Router, Network-controlled power switch, and computers](https://raw.githubusercontent.com/qca/boardfarm/master/docs/Simple_Board_Farm.jpg "Minimal Test Station")
 
 This is one router test station. The black cylinder in the center is 1 router. The web-controlled power switch in the upper-left allows devices to be remotely power-cycled. White Ethernet cables connect devices to the local network. Three, small computers run Debian Linux. One computer is connected to the router's LAN, one computer is connected to the router's WAN, and the last computer is connected to the Serial Console of the router.
 
-Ingredients
------------
+#### Ingredients
 
 The smallest board farm requires:
 
@@ -34,8 +35,7 @@ A console server allows users to ssh/telnet to it and gain console access to boa
 
 Network-controlled power switches allow users to turn on and off power outlets over the network.  They can be purchased from various places with different amounts of features typically for a few hundred USD/EUR.
 
-Physical Connections
---------------------
+#### Physical Connections
 
 Here we assume the "board" you wish to test is a router.
 
@@ -48,6 +48,123 @@ Serial Connections:
     Console server <---> Router
 
 Power Connections: Only the router needs to be plugged into the Network-controlled power switch.  All others can be connected to standard power outlets.
+
+### Minimal Virtualised Example
+
+#### Ingredients
+
+Virtualised board farm requires:
+
+* 1 board (e.g. a router)
+* 1 test server
+* 1 network-controlled power switch or some other means how to trigger reboot remotelly
+* 1 VLAN capable switch with at least 4 ports (e.g. another router)
+* Several Ethernet cables, and serial connector for the board.
+
+A test server allows users to ssh to it and gain console access to
+boards and it also runs virtualised testing machines.
+
+Network-controlled power switches allow users to turn on and off power outlets
+over the network.  They can be purchased from various places with different
+amounts of features typically for a few hundred USD/EUR.
+
+For VLAN capable switch, most of OpenWRT routers can be used.
+
+#### Network Connections
+
+Here we assume the "board" you wish to test is a router.
+
+Ethernet connections are easy - everybody is connected via Ethernet port to
+your VLAN capable switch. You put in Internet connection cable, yous test server
+and one cable from WAN interface of the router and one from LAN interface.
+Before putting everything together we need to preconfigure this switch. One
+example configuration is as follows:
+
+* Port 1 of switch - Internet cable - Untagged Vlan 99
+* Port 2 of switch - Test Server - Tagged Vlan 99, 10, 11
+* Port 3 of switch - Router WAN - Untagged Vlan 10
+* Port 4 of switch - Router LAN - Untagged Vlan 11
+
+It is also a good idea to configure router to be manageable from the outside -
+Port 1.
+
+Now we have plenty of connections bundled in one VLAN trunk that goes to our
+Test Server where we need to decouple them. We create separate VLAN endpoints
+for each one of the VLANs in the the OS running there and for VLAN99 we create a
+configuration (either static or DHCP) so we can connect to the server from the
+outside. For VLAN10 and VLAN 11 we create bridges to put VLAN interfaces into
+and we can let them unconfigured.
+
+Here is example configuration for openSUSE, this will differ based on your
+favorite distribution
+
+`/etc/sysconfig/network/ifcfg-inet`:
+```bash
+BOOTPROTO='dhcp'
+ETHERDEVICE='eth0'
+DHCLIENT_SET_DEFAULT_ROUTE='yes'
+STARTMODE='auto'
+VLAN_ID='99'
+```
+
+`/etc/sysconfig/network/ifcfg-lan-vlan`:
+```bash
+BOOTPROTO='none'
+ETHERDEVICE='eth0'
+STARTMODE='auto'
+VLAN_ID='11'
+```
+
+`/etc/sysconfig/network/ifcfg-wan-vlan`:
+```bash
+BOOTPROTO='none'
+ETHERDEVICE='eth0'
+STARTMODE='auto'
+VLAN_ID='10'
+```
+
+`/etc/sysconfig/network/ifcfg-lan-br`:
+```bash
+BOOTPROTO='none'
+BRIDGE='yes'
+BRIDGE_FORWARDDELAY='0'
+BRIDGE_PORTS='lan-vlan'
+BRIDGE_STP='off'
+STARTMODE='auto'
+```
+
+`/etc/sysconfig/network/ifcfg-wan-br`:
+```bash
+BOOTPROTO='none'
+BRIDGE='yes'
+BRIDGE_FORWARDDELAY='0'
+BRIDGE_PORTS='wan-vlan'
+BRIDGE_STP='off'
+STARTMODE='auto'
+```
+
+#### Virtual servers
+
+For LAN and WAN computers mentioned in physical setup we can now use virtual
+ones, for example using LXC. Really easy and user-friendly way to do that is to
+use libvirt installed on your test server and virt-manager to control it. You
+can then create two LXC hosts and unpack debian images inside, just make sure
+that both of them have two virtual network cards. First one connected to
+managing network between test server and them - just make sure to use static
+configuration for LAN and WAN computers and that LAN computer doesn't have
+default route set to test server (WAN computer on the other hand might need
+this). The second network interface in case of LAN computer should be put to
+lan-br and WAN one into wan-br.
+
+#### Test server
+
+Now all you need to do is install uucp package on your test server, create a
+user account with sufficient privileges to use uc (in openSUSE member of uucp
+and dialout groups), ideally add static entries for LAN and WAN conputer to
+your hosts file and copy out keys and you can start running tests. You need
+just unprivileged user on the test server and you can make backup of your
+containers just in case some tests break them.
+
 
 Setup of the Computers
 ----------------------
