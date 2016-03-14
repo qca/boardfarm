@@ -24,9 +24,9 @@ class DebianBox(base.BaseDevice):
                  name,
                  color,
                  output=sys.stdout,
-                 username='root',
-                 password='bigfoot1',
-                 port="22",
+                 username,
+                 password,
+                 port,
                  reboot=False,
                  location=None):
         if name is None:
@@ -317,7 +317,10 @@ class DebianBox(base.BaseDevice):
 if __name__ == '__main__':
     # Example use
     dev = DebianBox('10.0.0.173',
-                    'blue')
+                    'blue',
+                    username="root",
+                    password="bigfoot1",
+                    port="22")
     dev.sendline('echo Hello')
     dev.expect('Hello', timeout=4)
     dev.expect(dev.prompt)
