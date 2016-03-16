@@ -69,6 +69,7 @@ def parse():
     parser.add_argument('-a', '--analysis', metavar='', type=str, default=None, help='Only run post processing analysis on logs')
     owrt_tests_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "results", '')
     parser.add_argument('-o', '--output_dir', metavar='', type=str, default=owrt_tests_dir, help='Directory to output results files too')
+    parser.add_argument('-c', '--config_file', metavar='', type=str, default=boardfarm_config_location, help='JSON config file for boardfarm')
 
     args = parser.parse_args()
 
@@ -86,10 +87,10 @@ def parse():
         sys.exit(0)
 
     try:
-        if boardfarm_config_location.startswith("http"):
-            data = urlopen(boardfarm_config_location).read().decode()
+        if args.config_file.startswith("http"):
+            data = urlopen(args.config_file).read().decode()
         else:
-            data = open(boardfarm_config_location, 'r').read()
+            data = open(args.config_file, 'r').read()
         config.boardfarm_config = json.loads(data)
     except Exception as e:
         print(e)
