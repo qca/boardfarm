@@ -19,6 +19,7 @@ class LinuxBootTest(unittest2.TestCase):
         super(LinuxBootTest, self).__init__("testWrapper")
         self.config = config
         self.reset_after_fail = True
+        self.dont_retry = False
         self.logged = dict()
 
     def id(self):
@@ -61,7 +62,23 @@ class LinuxBootTest(unittest2.TestCase):
             if wlan and hasattr(self, 'wlan_setup'):
                 self.wlan_setup()
 
-            self.runTest()
+            if self.config.retry and not self.dont_retry:
+                retry = self.config.retry
+            else:
+                retry = 0
+
+            while retry >= 0:
+                try:
+                    self.runTest()
+                    retry = -1
+                except Exception as e:
+                    retry = retry - 1
+                    if(retry > 0):
+                        print(e.get_trace())
+                        print("\n\n----------- Test failed! Retrying in 5 seconds... -------------")
+                        time.sleep(5)
+                    else:
+                        raise
 
             if wan and hasattr(self, 'wan_cleanup'):
                 self.wan_cleanup()
