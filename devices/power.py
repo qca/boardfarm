@@ -6,9 +6,10 @@
 # The full text can be found in LICENSE in the root directory.
 
 import pexpect
+import dlipower
 
 
-def get_power_device(ip_address, outlet=None):
+def get_power_device(ip_address, username=None, password=None, outlet=None):
     '''
     Try to determine the type of network-controlled power switch
     at a given IP address. Return a class that can correctly
@@ -28,9 +29,11 @@ def get_power_device(ip_address, outlet=None):
     except Exception as e:
         print(e)
         raise Exception("\nError connecting to %s" % ip_address)
-    if t == 1:
+    if t == 0:
+        return DLIPowerSwitch(ip_address, outlet=outlet, username=username, password=password)
+    elif t == 1:
         return SentrySwitchedCDU(ip_address, outlet=outlet)
-    if t == 2:
+    elif t == 2:
         return APCPower(ip_address, outlet=outlet)
     else:
         raise Exception("No code written to handle power device found at %s" % ip_address)
@@ -143,3 +146,19 @@ class APCPower(PowerDevice):
         pcon.send("YES")
         pcon.send("" + "\r\n")
         pcon.expect("> ")
+
+class DLIPowerSwitch(PowerDevice):
+    '''Resets a DLI based power switch'''
+    def __init__(self,
+                 ip_address,
+                 outlet,
+                 username,
+                 password):
+        PowerDevice.__init__(self, ip_address, username, password)
+        self.switch = dlipower.PowerSwitch(hostname=ip_address, userid=username, password=password)
+        self.outlet = outlet
+
+    def reset(self, outlet=None):
+        if outlet is None:
+            outlet = self.outlet
+        self.switch.cycle(outlet)
