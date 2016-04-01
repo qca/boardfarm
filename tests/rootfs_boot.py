@@ -10,7 +10,6 @@ import linux_boot
 import lib
 from devices import board, wan, lan, wlan, prompt
 
-
 class RootFSBootTest(linux_boot.LinuxBootTest):
     '''Flashed image and booted successfully.'''
 
@@ -155,7 +154,8 @@ class RootFSBootTest(linux_boot.LinuxBootTest):
             try:
                 board.sendline()
                 board.sendline()
-                board.interact()
+                if not self.config.batch:
+                    board.interact()
             except:
                 pass
             if self.reboot == True and self.reset_after_fail:

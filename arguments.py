@@ -53,6 +53,7 @@ def parse():
                                      epilog=HELP_EPILOG)
     parser.add_argument('-l', '--list_tests', action='store_true', help='List available tests and exit')
     parser.add_argument('-i', '--inventory', action='store_true', help='List available boards and exit')
+    parser.add_argument('-y', '--batch', action='store_true', help='Run in unattended mode - do not spawn console on failed test')
     parser.add_argument('-k', '--kernel', metavar='', type=str, default=None, help='URL or file PATH of Kernel image to flash')
     parser.add_argument('-r', '--rootfs', metavar='', type=str, default=None, help='URL or file PATH of Rootfs image to flash')
     parser.add_argument('-m', '--meta_img_loc', metavar='', type=str, default=None, help='URL or file PATH to meta image to flash')
@@ -96,6 +97,8 @@ def parse():
         print(e)
         print('Unable to access/read Board Farm configuration\n%s' % boardfarm_config_location)
         sys.exit(1)
+
+    config.batch = args.batch
 
     if args.inventory:
         print("%11s  %15s  %5s  %25s  %25s  %s" % ('Name', 'Model', 'Auto', 'LAN', 'WAN', 'Notes'))
