@@ -15,7 +15,7 @@ class QcomMipsRouter(openwrt_router.OpenWrtRouter):
     '''
 
     prompt = ['root\\@.*:.*#', ]
-    uprompt = ['ath>', ]
+    uprompt = ['ath>', 'ar7240>']
 
     def __init__(self, *args, **kwargs):
         super(QcomMipsRouter, self).__init__(*args, **kwargs)
@@ -121,4 +121,3 @@ class QcomMipsRouter(openwrt_router.OpenWrtRouter):
                 {'expect': 'r86:ku', 'name': 'icache_misses', 'sname': 'IMISS'}]
 
         return events
-
