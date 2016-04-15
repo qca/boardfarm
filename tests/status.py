@@ -49,7 +49,7 @@ class UciShow(rootfs_boot.RootFSBootTest):
         num_files = int(board.match.group(1))
         board.expect(prompt)
         board.sendline('uci show')
-        board.expect(prompt)
+        board.expect(prompt, searchwindowsize=50)
         self.result_message = 'Dumped all current uci settings from %s files in /etc/config/.' % num_files
 
 class DhcpLeaseCheck(rootfs_boot.RootFSBootTest):
