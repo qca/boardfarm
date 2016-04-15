@@ -25,11 +25,15 @@ class TestsuiteConfigReader(object):
       [testsuiteB]
       test7
       test2
+      [testsuiteC]
+      @testsuiteB
+      test3
 
     And from that, create dictionary like:
 
       {'testsuiteA' : [test1, test2, test1, test2, ...]
        'testsuiteB' : [test7, test2, ...]
+       'testsuiteC' : [test7, test2, test3, ...]
       }
     '''
 
@@ -65,6 +69,10 @@ class TestsuiteConfigReader(object):
                     current_section = re.search('\[(.*)\]', line).group(1)
                     if current_section not in self.section:
                         self.section[current_section] = []
+                if '@' in line:
+                    ref_section = re.search('@(.*)', line).group(1)
+                    if ref_section in self.section:
+                        self.section[current_section] = self.section[current_section] + self.section[ref_section]
                 elif re.match('\w+', line):
                     if current_section:
                         self.section[current_section].append(line)
