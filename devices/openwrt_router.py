@@ -50,6 +50,8 @@ class OpenWrtRouter(base.BaseDevice):
                  password='bigfoot1',
                  web_proxy=None,
                  tftp_server=None,
+                 tftp_username=None,
+                 tftp_password=None,
                  connection_type=None,
                  power_username=None,
                  power_password=None,
@@ -68,6 +70,10 @@ class OpenWrtRouter(base.BaseDevice):
         self.web_proxy = web_proxy
         if tftp_server:
             self.tftp_server = socket.gethostbyname(tftp_server)
+            if tftp_username:
+                self.tftp_username = tftp_username
+            if tftp_password:
+                self.tftp_password = tftp_password
         else:
             self.tftp_server = None
         self.lan_iface = "eth1"
@@ -170,13 +176,13 @@ class OpenWrtRouter(base.BaseDevice):
                 self.expect(self.uprompt)
         raise Exception("TFTP failed, try rebooting the board.")
 
-    def prepare_file(self, fname, username='root', password='bigfoot1'):
+    def prepare_file(self, fname):
         '''Copy file to tftp server, so that it it available to tftp
         to the board itself.'''
         if fname.startswith("http://") or fname.startswith("https://"):
-            return common.download_from_web(fname, self.tftp_server, username, password)
+            return common.download_from_web(fname, self.tftp_server, self.tftp_username, self.tftp_password)
         else:
-            return common.scp_to_tftp_server(os.path.abspath(fname), self.tftp_server, username, password)
+            return common.scp_to_tftp_server(os.path.abspath(fname), self.tftp_server, self.tftp_username, self.tftp_password)
 
     def install_package(self, fname):
         '''Install OpenWrt package (opkg).'''
