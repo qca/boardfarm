@@ -152,7 +152,7 @@ class iPerfTest(rootfs_boot.RootFSBootTest):
 Test Suites
 -----------
 
-A test suite is a list of test cases.  Several are already defined in in the file `testsuites.cfg`. For example:
+A test suite is a list of test cases. Several are already defined in in the file `testsuites.cfg`. For example:
 
 ```
 [basic]
@@ -162,6 +162,23 @@ OpkgList
 KernelModules
 MemoryUse
 InterfacesShow
+LanDevPingRouter
+RouterPingWanDev
+LanDevPingWanDev
+```
+
+Optionally, test suite may reference (using `@`) any other previously defined test suites to include all the test cases it contains. For example:
+```
+[basic-offline]
+RootFSBootTest
+OpenwrtVersion
+OpkgList
+KernelModules
+MemoryUse
+InterfacesShow
+
+[basic]
+@basic-offline
 LanDevPingRouter
 RouterPingWanDev
 LanDevPingWanDev
