@@ -54,6 +54,7 @@ def parse():
     parser.add_argument('-l', '--list_tests', action='store_true', help='List available tests and exit')
     parser.add_argument('-i', '--inventory', action='store_true', help='List available boards and exit')
     parser.add_argument('-y', '--batch', action='store_true', help='Run in unattended mode - do not spawn console on failed test')
+    parser.add_argument('-t', '--retry', type=int, default=0, help='How many times to retry every test if it fails')
     parser.add_argument('-k', '--kernel', metavar='', type=str, default=None, help='URL or file PATH of Kernel image to flash')
     parser.add_argument('-r', '--rootfs', metavar='', type=str, default=None, help='URL or file PATH of Rootfs image to flash')
     parser.add_argument('-m', '--meta_img_loc', metavar='', type=str, default=None, help='URL or file PATH to meta image to flash')
@@ -122,6 +123,8 @@ def parse():
 
     if hasattr(config, 'INSTALL_PKGS') is False:
         config.INSTALL_PKGS = ""
+
+    config.retry = args.retry
 
     if args.package:
         for pkg in args.package:
