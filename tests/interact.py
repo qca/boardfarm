@@ -31,8 +31,8 @@ class Interact(rootfs_boot.RootFSBootTest):
         while True:
             print("\n\nCurrent station")
             print("  Board console: %s" % self.config.board.get('conn_cmd'))
-            print("  LAN device:    ssh root@%s" % self.config.board.get('lan_device'))
-            print("  WAN device:    ssh root@%s" % self.config.board.get('wan_device'))
+            print("  LAN device:    ssh %s@%s" % (self.config.board.get('lan_username', "root"), self.config.board.get('lan_device')))
+            print("  WAN device:    ssh %s@%s" % (self.config.board.get('wan_username', "root") ,self.config.board.get('wan_device')))
             print('Pro-tip: Increase kernel message verbosity with\n'
                   '    echo "7 7 7 7" > /proc/sys/kernel/printk')
             print("Menu")
