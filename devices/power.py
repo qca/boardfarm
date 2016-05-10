@@ -5,6 +5,12 @@
 # This file is distributed under the Clear BSD license.
 # The full text can be found in LICENSE in the root directory.
 
+try:
+    from urllib.request import urlopen
+    from urllib.error import HTTPError
+except:
+    from urllib2 import urlopen, HTTPError
+
 import pexpect
 import dlipower
 
@@ -17,23 +23,18 @@ def get_power_device(ip_address, username=None, password=None, outlet=None):
     '''
     if ip_address is None:
         return HumanButtonPusher()
-    p = pexpect.spawn('curl -L %s' % ip_address)
     try:
-        t = p.expect_exact(['<title>Power Controller </title>',
-                            'Sentry Switched CDU',
-                            '<title>APC | Log On</title>'], timeout=90)
-    except pexpect.EOF as e:
-        if hasattr(p, "before"):
-            print(p.before)
-        raise Exception("Unable to connect to %s." % ip_address)
+        data = urlopen("http://" + ip_address).read().decode()
+    except HTTPError as e:
+        data = e.read().decode()
     except Exception as e:
         print(e)
         raise Exception("\nError connecting to %s" % ip_address)
-    if t == 0:
+    if '<title>Power Controller' in data:
         return DLIPowerSwitch(ip_address, outlet=outlet, username=username, password=password)
-    elif t == 1:
+    if 'Sentry Switched CDU' in data:
         return SentrySwitchedCDU(ip_address, outlet=outlet)
-    elif t == 2:
+    if '<title>APC ' in data:
         return APCPower(ip_address, outlet=outlet)
     else:
         raise Exception("No code written to handle power device found at %s" % ip_address)
