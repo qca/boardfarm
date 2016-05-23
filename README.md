@@ -9,6 +9,15 @@ The simplest tests consist of commands to type expected output. These tests use 
 
 Test suites are located in `testsuites.cfg` and are simply lists of test names.  Results of running a test suite are stored in a nicely formated html file that can be emailed to interested parties or sent to a database.
 
+Getting involved
+--------------
+Have a question about BoardFarm? Want to know the best way to get involved? Found a bug? Here are the BoardFarm communication channels:
+
+* Mailing List at boardfarm@lists.prplfoundation.org (sign up at http://lists.prplfoundation.org/cgi-bin/mailman/listinfo/boardfarm). Use this for general discussion or questions.
+* IRC at #boardfarm on Freenode. Use this for quick answers if someone is available (Sometimes no one is there)
+* Issue tracker at https://github.com/qca/boardfarm/issues. Use this for clear feature requests or bug reports. It's okay to also initially discuss a feature request on the mailing lists
+* Pull requests at https://github.com/qca/boardfarm. When you want to submit a change to Boardfarm!
+
 Software Setup
 --------------
 
