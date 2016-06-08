@@ -76,7 +76,7 @@ class iPerfUDPTest(rootfs_boot.RootFSBootTest):
             lan_priv_ip = node.get_interface_ipaddr("eth1")
         except:
             lan_priv_ip = node.get_interface_ipaddr("wlan0")
-        board.uci_forward_traffic_redirect("tcp", "5001", lan_priv_ip)
+        board.uci_forward_traffic_redirect("udp", "5001", lan_priv_ip)
         self.rip = board.get_interface_ipaddr(board.wan_iface)
         return ""
 
@@ -167,10 +167,10 @@ class iPerfUDPNonRoutedTest(iPerfUDPTest):
         return "192.168.1.1"
 
     def runTest(self):
-        super(iPerfNonRoutedTest, self).runTest(client=lan, server=board)
+        super(iPerfUDPNonRoutedTest, self).runTest(client=lan, server=board)
 
     def recover(self):
-        super(iPerfNonRoutedTest, self).recover(client=lan, server=board)
+        super(iPerfUDPNonRoutedTest, self).recover(client=lan, server=board)
 
 class iPerfUDPReverseTest(iPerfUDPTest):
     '''iPerf from WAN to LAN'''
@@ -228,7 +228,7 @@ class iPerfUDPReverseTestIPV6(ipv6_setup.Set_IPv6_Addresses, iPerfUDPReverseTest
         return "4aaa::6"
 
     def server_opts_reverse(self, node):
-        board.uci_forward_traffic_rule("tcp", "5001", "4aaa::6")
+        board.uci_forward_traffic_rule("udp", "5001", "4aaa::6")
         return "-V -B %s" % self.reverse_ip()
 
     def client_opts(self):
@@ -236,7 +236,7 @@ class iPerfUDPReverseTestIPV6(ipv6_setup.Set_IPv6_Addresses, iPerfUDPReverseTest
 
     def runTest(self):
         ipv6_setup.Set_IPv6_Addresses.runTest(self)
-        iPerfReverseTest.runTest(self)
+        iPerfUDPReverseTest.runTest(self)
 
 class iPerfUDPBiDirTest(iPerfUDPTest):
     '''iPerf from LAN to/from WAN'''
@@ -308,7 +308,7 @@ class iPerfUDPBiDirTestIPV6(ipv6_setup.Set_IPv6_Addresses, iPerfUDPBiDirTest):
         return "-V -B %s" % self.forward_ip()
 
     def server_opts_reverse(self, node):
-        board.uci_forward_traffic_rule("tcp", "5001", "4aaa::6")
+        board.uci_forward_traffic_rule("udp", "5001", "4aaa::6")
         return "-V -B %s" % self.reverse_ip()
 
     def client_opts(self):
@@ -316,4 +316,4 @@ class iPerfUDPBiDirTestIPV6(ipv6_setup.Set_IPv6_Addresses, iPerfUDPBiDirTest):
 
     def runTest(self):
         ipv6_setup.Set_IPv6_Addresses.runTest(self)
-        iPerfBiDirTest.runTest(self)
+        iPerfUDPBiDirTest.runTest(self)
