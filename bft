@@ -215,9 +215,9 @@ def main():
         else:
             n = t.__class__.__name__
         for k, v in t.logged.items():
-            info_for_remote_log[n + '.' + k] = v
+            info_for_remote_log[n + '-' + k] = v
         if hasattr(t, 'result_grade'):
-            info_for_remote_log[n + ".result"] = t.result_grade
+            info_for_remote_log[n + "-result"] = t.result_grade
 
     try:
         if config.logging_server is not None:
