@@ -80,7 +80,7 @@ Now, we have data to work with.
 
 ### Specifying an index pattern in Kibana
 
-When visiting the Kibana webinterface for the first time, you'll have to specify an index pattern so Kibana knows which logfiles to analyze. BoardFarm stores its data in the format boardfarm-<yyyy-mm-dd>, so we'll tell Kibana to use 'boardfarm-\*' as the index pattern.
+When visiting the Kibana webinterface for the first time, you'll have to specify an index pattern so Kibana knows which logfiles to analyze. BoardFarm stores its data in the format boardfarm-\<yyyy.mm.dd>, so we'll tell Kibana to use 'boardfarm-\*' as the index pattern.
 Kibana should then automatically recognize your existing database entries and suggest '@timestamp' as the time-field name.
 Click 'create' and you're good to go. You should now see a table with a number of fields, e.g. 'board_type' or 'tests_total'.
 
