@@ -13,7 +13,14 @@ except:
 
 import pexpect
 import dlipower
+import time
 
+try:
+    from ouimeaux.environment import Environment as WemoEnv
+    from ouimeaux.device.switch import Switch as WemoSwitch
+except:
+    WemoEnv = None
+    WemoSwitch = None
 
 def get_power_device(ip_address, username=None, password=None, outlet=None):
     '''
@@ -23,6 +30,12 @@ def get_power_device(ip_address, username=None, password=None, outlet=None):
     '''
     if ip_address is None:
         return HumanButtonPusher()
+    elif "wemo://" in outlet:
+        if WemoEnv is None:
+            print("Please install ouimeaux: pip install ouimeaux")
+        else:
+            return WemoPowerSwitch(None, outlet=outlet)
+
     try:
         data = urlopen("http://" + ip_address).read().decode()
     except HTTPError as e:
@@ -163,3 +176,38 @@ class DLIPowerSwitch(PowerDevice):
         if outlet is None:
             outlet = self.outlet
         self.switch.cycle(outlet)
+
+class WemoPowerSwitch(PowerDevice):
+    '''
+    Controls a wemo switch given an ipaddress. Run the following command to list devices:
+
+        $ python ./devices/power.py
+    '''
+    def __init__(self, outlet):
+        addr = 'http://' + outlet.replace("wemo://", "") + ":49153/setup.xml"
+        self.switch = WemoSwitch(addr)
+    def reset(self):
+        self.switch.off()
+        time.sleep(5)
+        self.switch.on()
+
+if __name__ == "__main__":
+    print("Gathering info about power outlets...")
+
+    if WemoEnv is not None:
+        env = WemoEnv()
+        env.start()
+        scan_time = 10
+        print("Scanning for WeMo switches for %s seconds..." % scan_time)
+        env.discover(scan_time)
+        if len(env.list_switches()) > 0:
+            print("Found the following switches:");
+            for switch_name in env.list_switches():
+                switch = env.get_switch(switch_name)
+                print("%s ip address is %s" % (switch_name, switch.host))
+            print("The switches above can be added by ip address"
+                    " for example use the")
+            print("following to use %s" % switch_name)
+            print("\twemo://%s" % switch.host)
+        else:
+            print("No WeMo switches found")
