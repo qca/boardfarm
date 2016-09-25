@@ -28,13 +28,15 @@ def get_power_device(ip_address, username=None, password=None, outlet=None):
     at a given IP address. Return a class that can correctly
     interact with that type of switch.
     '''
+
     if ip_address is None:
-        return HumanButtonPusher()
-    elif "wemo://" in outlet:
-        if WemoEnv is None:
-            print("Please install ouimeaux: pip install ouimeaux")
+        if "wemo://" in outlet:
+            if WemoEnv is None:
+                print("Please install ouimeaux: pip install ouimeaux")
+            else:
+                return WemoPowerSwitch(outlet=outlet)
         else:
-            return WemoPowerSwitch(None, outlet=outlet)
+            return HumanButtonPusher()
 
     try:
         data = urlopen("http://" + ip_address).read().decode()
