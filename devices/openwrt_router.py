@@ -59,6 +59,7 @@ class OpenWrtRouter(base.BaseDevice):
 
 
         if connection_type is None:
+            print("\nWARNING: Unknown connection type using ser2net\n")
             connection_type = "ser2net"
 
         self.logfile_read = output
