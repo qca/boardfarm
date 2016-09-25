@@ -158,10 +158,7 @@ class DebianBox(base.BaseDevice):
         self.sendline('cat > /etc/dhcp/dhcpd.conf << EOF')
         self.sendline('ddns-update-style none;')
         self.sendline('option domain-name "bigfoot-test";')
-        if self.location == "chennai":
-            self.sendline('option domain-name-servers 10.12.0.151, 10.12.0.150, 129.46.132.7;')
-        else:
-            self.sendline('option domain-name-servers 10.222.148.20, 10.43.5.77, 10.43.6.93;')
+        self.sendline('option domain-name-servers 8.8.8.8, 8.8.4.4;')
         self.sendline('default-lease-time 600;')
         self.sendline('max-lease-time 7200;')
         self.sendline('subnet 192.168.0.0 netmask 255.255.255.0 {')
