@@ -32,6 +32,10 @@ class QcomMipsRouter(openwrt_router.OpenWrtRouter):
         elif self.model in ("db120", "ap143", "ap151", "ap152-8M"):
             self.kernel_addr = "0x9f680000"
             self.rootfs_addr = "0x9f050000"
+        elif self.model in ("tew-823dru"):
+            self.kernel_addr = "0x9f040000"
+            # rootfs undefined so we throw exception when trying to
+            # write for the time being
 
     def flash_rootfs(self, ROOTFS):
         '''Flash Root File System image'''
