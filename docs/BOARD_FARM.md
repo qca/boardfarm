@@ -209,8 +209,19 @@ All routers in a board farm need an entry in the boardfarm_config.json file like
     "<name>": {
       "board_type": "<model>",
       "conn_cmd": "telnet <server> <port>",
-      "lan_device": "10.0.0.107",
-      "wan_device": "bf-vm-YY.something.com",
+      "devices": [
+		{
+			"type": "debian",
+			"name": "wan",
+			"ipaddr": "port2",
+			"color": "cyan"
+		},
+		{
+			"type": "debian",
+			"name": "lan",
+			"ipaddr": "port3",
+			"color": "blue"
+		}
       "powerip": "<powerserver>",
       "powerport": "<outlet>"
     }
@@ -221,7 +232,7 @@ Where:
 * `name` is any unique name at all
 * `model` is a descriptive model name
 * `conn_cmd` is the command to run to connect to the board
-* `lan_device` and `wan_device` are the devices connected to the board (must have ssh server)
+* `devices' is an array of devices that will be added, must have a WAN device at minimum
 * `powerip` and `powerport` are the network-control power unit and outlet to reset the board
 
 Using a local serial port (i.e. no console server)

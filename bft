@@ -61,6 +61,21 @@ def setup_legacy_devices(config):
                                         port=config.board.get('2g_port', "22"))
 
 
+def setup_dynamic_devices(config):
+    '''Sets up dynamic devices from devices node in JSON config file'''
+    for device in config.board['devices']:
+        if device['type'] == 'debian':
+            #TODO: support conn_cmd and ipaddr (for ssh)
+            d = debian.DebianBox(name=device['ipaddr'],
+                color=device.get('color', 'black'),
+                reboot=config.reboot_vms,
+                username=device.get('username', "root"),
+                password=device.get('password', "bigfoot1"),
+                port=config.board.get('port', "22"))
+            setattr(config, device['name'], d)
+        else:
+            print("Unknown device type for %d", device)
+
 def main():
     '''Connect to devices, run tests, record results.'''
 
@@ -101,6 +116,9 @@ def main():
             print_bold("dut device console = %s" % colored("black", 'grey'))
 
             setup_legacy_devices(config)
+
+            if 'devices' in config.board:
+                setup_dynamic_devices(config)
 
         except Exception as e:
             print(e)
