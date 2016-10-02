@@ -63,6 +63,7 @@ def setup_legacy_devices(config):
 
 def setup_dynamic_devices(config):
     '''Sets up dynamic devices from devices node in JSON config file'''
+    config.devices = []
     for device in config.board['devices']:
         if device['type'] == 'debian':
             #TODO: support conn_cmd and ipaddr (for ssh)
@@ -73,6 +74,7 @@ def setup_dynamic_devices(config):
                 password=device.get('password', "bigfoot1"),
                 port=config.board.get('port', "22"))
             setattr(config, device['name'], d)
+            config.devices.append(device['name'])
         else:
             print("Unknown device type for %d", device)
 
