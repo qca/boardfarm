@@ -21,6 +21,45 @@ import json
 import site
 site.addsitedir(os.path.dirname(os.path.realpath(__file__)))
 
+from devices import board_decider, debian, logstash, elasticlogger
+
+def setup_legacy_devices(config):
+    '''This will setup legacy hard coded devices to into the config'''
+
+    config.wan = None
+    config.lan = None
+    config.wlan = None
+    config.wlan5g = None
+    config.wlan2g = None
+
+    if config.board.get('wan_device'):
+        config.wan = debian.DebianBox(config.board.get('wan_device'),
+                                      color='cyan', reboot=config.reboot_vms,
+                                      location=config.board.get('location'),
+                                      username=config.board.get('wan_username', "root"),
+                                      password=config.board.get('wan_password', "bigfoot1"),
+                                      port=config.board.get('wan_port', "22"))
+    if config.board.get('lan_device'):
+        config.lan = debian.DebianBox(config.board.get('lan_device'), color='blue', reboot=config.reboot_vms,
+                                    username=config.board.get('lan_username', "root"),
+                                    password=config.board.get('lan_password', "bigfoot1"),
+                                    port=config.board.get('lan_port', "22"))
+    if config.board.get('wlan_device'):
+        config.wlan = debian.DebianBox(config.board.get('wlan_device'), color='green', reboot=config.reboot_vms,
+                                    username=config.board.get('wlan_username', "root"),
+                                    password=config.board.get('wlan_password', "bigfoot1"),
+                                    port=config.board.get('wlan_port', "22"))
+    if config.board.get('5g_device'):
+        config.wlan5g = debian.DebianBox(config.board.get('5g_device'), color='grey', reboot=config.reboot_vms,
+                                        username=config.board.get('5g_username', "root"),
+                                        password=config.board.get('5g_password', "bigfoot1"),
+                                        port=config.board.get('5g_port', "22"))
+    if config.board.get('2g_device'):
+        config.wlan2g = debian.DebianBox(config.board.get('2g_device'), color='magenta', reboot=config.reboot_vms,
+                                        username=config.board.get('2g_username', "root"),
+                                        password=config.board.get('2g_password', "bigfoot1"),
+                                        port=config.board.get('2g_port', "22"))
+
 
 def main():
     '''Connect to devices, run tests, record results.'''
@@ -33,7 +72,6 @@ def main():
     import devices
     from termcolor import colored
     from library import print_bold
-    from devices import board_decider, debian, logstash, elasticlogger
 
     # Connect to any board in list
     connected_to_board = False
@@ -61,40 +99,8 @@ def main():
                                                  power_username=config.board.get('power_username', None),
                                                  power_password=config.board.get('power_password', None))
             print_bold("dut device console = %s" % colored("black", 'grey'))
-            # spawn wan and lan consoles if present
-            config.wan = None
-            config.lan = None
-            config.wlan = None
-            config.wlan5g = None
-            config.wlan2g = None
 
-            if config.board.get('wan_device'):
-                config.wan = debian.DebianBox(config.board.get('wan_device'),
-                                              color='cyan', reboot=config.reboot_vms,
-                                              location=config.board.get('location'),
-                                              username=config.board.get('wan_username', "root"),
-                                              password=config.board.get('wan_password', "bigfoot1"),
-                                              port=config.board.get('wan_port', "22"))
-            if config.board.get('lan_device'):
-                config.lan = debian.DebianBox(config.board.get('lan_device'), color='blue', reboot=config.reboot_vms,
-                                            username=config.board.get('lan_username', "root"),
-                                            password=config.board.get('lan_password', "bigfoot1"),
-                                            port=config.board.get('lan_port', "22"))
-            if config.board.get('wlan_device'):
-                config.wlan = debian.DebianBox(config.board.get('wlan_device'), color='green', reboot=config.reboot_vms,
-                                            username=config.board.get('wlan_username', "root"),
-                                            password=config.board.get('wlan_password', "bigfoot1"),
-                                            port=config.board.get('wlan_port', "22"))
-            if config.board.get('5g_device'):
-                config.wlan5g = debian.DebianBox(config.board.get('5g_device'), color='grey', reboot=config.reboot_vms,
-                                                username=config.board.get('5g_username', "root"),
-                                                password=config.board.get('5g_password', "bigfoot1"),
-                                                port=config.board.get('5g_port', "22"))
-            if config.board.get('2g_device'):
-                config.wlan2g = debian.DebianBox(config.board.get('2g_device'), color='magenta', reboot=config.reboot_vms,
-                                                username=config.board.get('2g_username', "root"),
-                                                password=config.board.get('2g_password', "bigfoot1"),
-                                                port=config.board.get('2g_port', "22"))
+            setup_legacy_devices(config)
 
         except Exception as e:
             print(e)
