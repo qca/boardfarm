@@ -158,7 +158,7 @@ def parse():
     else:
         if args.extend:
             # One or more test cases was specified at command-line, just boot first.
-            config.TEST_SUITE = "flash_only"
+            config.TEST_SUITE = "flash"
         else:
             # No test suite or test cases specified, so just boot and interact.
             config.TEST_SUITE = "interact"
