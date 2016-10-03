@@ -9,7 +9,7 @@ import os
 
 # Boardfarm configuration describes test stations - see boardfarm doc.
 # Can be local or remote file.
-boardfarm_config_location = 'boardfarm_config_example.json'
+boardfarm_config_location = os.environ.get('BFT_CONFIG', 'boardfarm_config_example.json')
 
 # Test Suite config files. Standard python config file format.
 testsuite_config_files = [os.path.join(os.path.dirname(os.path.realpath(__file__)), 'testsuites.cfg'), ]
