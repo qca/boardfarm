@@ -103,13 +103,18 @@ def main():
 
         print_bold("Connecting to board named = %s, type = %s ..." % (name, config.board['board_type']))
         try:
+            if 'devices' in config.board:
+                tftp_server = [ x['ipaddr'] for x in config.board['devices'] if x['name'] == 'wan' ][0]
+            else:
+                tftp_server = None
+
             # Connect to board
             config.console = board_decider.board(config.board['board_type'],
                                                  conn_cmd=config.board['conn_cmd'],
                                                  power_ip=config.board.get('powerip', None),
                                                  power_outlet=config.board.get('powerport', None),
                                                  web_proxy=config.board.get('lan_device', None),
-                                                 tftp_server=config.board.get('wan_device', None),
+                                                 tftp_server=config.board.get('wan_device', tftp_server),
                                                  tftp_username=config.board.get('wan_username', 'root'),
                                                  tftp_password=config.board.get('wan_password', 'bigfoot1'),
                                                  connection_type=config.board.get('connection_type', None),
