@@ -221,9 +221,6 @@ class DebianBox(base.BaseDevice):
         self.sendline('iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to-source %s' % wan_ip_uplink)
         self.expect(self.prompt)
 
-        # start tftpd server
-        self.start_tftp_server()
-
         self.sendline('echo 0 > /proc/sys/net/ipv4/tcp_timestamps')
         self.expect(self.prompt)
         self.sendline('echo 0 > /proc/sys/net/ipv4/tcp_sack')

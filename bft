@@ -103,10 +103,15 @@ def main():
 
         print_bold("Connecting to board named = %s, type = %s ..." % (name, config.board['board_type']))
         try:
+            # If we find a dynamic device with the tftpd-server option let's use that for the server
+            # otherwise we use the device with the 'wan' name
+            tftp_server = None
             if 'devices' in config.board:
+                tftp_servers = [ x['ipaddr'] for x in config.board['devices'] if 'tftpd-server' in x.get('options', "") ]
+                if len(tftp_servers) == 1:
+                    tftp_server = tftp_servers[0]
+            elif tftp_server is None:
                 tftp_server = [ x['ipaddr'] for x in config.board['devices'] if x['name'] == 'wan' ][0]
-            else:
-                tftp_server = None
 
             # Connect to board
             config.console = board_decider.board(config.board['board_type'],
