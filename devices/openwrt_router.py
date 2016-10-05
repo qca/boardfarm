@@ -40,6 +40,7 @@ class OpenWrtRouter(base.BaseDevice):
     prompt = ['root\\@.*:.*#', '/ # ', '@R7500:/# ']
     uprompt = ['ath>', '\(IPQ\) #', 'ar7240>', '\(IPQ40xx\)']
     linux_booted = False
+    saveenv_safe = True
 
     def __init__(self,
                  model,
@@ -356,8 +357,9 @@ class OpenWrtRouter(base.BaseDevice):
                 time.sleep(1)
             assert passed
         self.sendline('setenv dumpdir crashdump')
-        self.expect(self.uprompt)
-        self.sendline('saveenv')
+        if self.saveenv_safe:
+            self.expect(self.uprompt)
+            self.sendline('saveenv')
         self.expect(self.uprompt)
 
     def boot_linux(self, rootfs=None):
