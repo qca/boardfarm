@@ -118,6 +118,49 @@ class DebianBox(base.BaseDevice):
         self.expect("pppd")
         self.expect(self.prompt)
 
+    def start_tftp_server(self):
+        # set WAN ip address, for now this will always be this address for the device side
+        self.sendline('ifconfig eth1 down')
+        self.expect(self.prompt)
+
+        # install packages required
+        self.sendline('apt-get -o DPkg::Options::="--force-confnew" -qy install tftpd-hpa')
+
+        # set WAN ip address, for now this will always be this address for the device side
+        self.sendline('ifconfig eth1 192.168.0.1')
+        self.expect(self.prompt)
+
+        #configure tftp server
+        self.sendline('/etc/init.d/tftpd-hpa stop')
+        self.expect('Stopping')
+        self.expect(self.prompt)
+        self.sendline('rm -rf /tftpboot')
+        self.expect(self.prompt)
+        self.sendline('rm -rf /srv/tftp')
+        self.expect(self.prompt)
+        self.sendline('mkdir -p /srv/tftp')
+        self.expect(self.prompt)
+        self.sendline('ln -sf /srv/tftp/ /tftpboot')
+        self.expect(self.prompt)
+        self.sendline('mkdir -p /tftpboot/tmp')
+        self.expect(self.prompt)
+        self.sendline('chmod a+w /tftpboot/tmp')
+        self.expect(self.prompt)
+        self.sendline('mkdir -p /tftpboot/crashdump')
+        self.expect(self.prompt)
+        self.sendline('chmod a+w /tftpboot/crashdump')
+        self.expect(self.prompt)
+        self.sendline('sed /TFTP_OPTIONS/d -i /etc/default/tftpd-hpa')
+        self.expect(self.prompt)
+        self.sendline('echo TFTP_OPTIONS=\\"-4 --secure --create\\" >> /etc/default/tftpd-hpa')
+        self.expect(self.prompt)
+        self.sendline('sed /TFTP_DIRECTORY/d -i /etc/default/tftpd-hpa')
+        self.expect(self.prompt)
+        self.sendline('echo TFTP_DIRECTORY=\\"/srv/tftp\\" >> /etc/default/tftpd-hpa')
+        self.expect(self.prompt)
+        self.sendline('/etc/init.d/tftpd-hpa restart')
+        self.expect(self.prompt)
+
     def restart_tftp_server(self):
         self.sendline('\n/etc/init.d/tftpd-hpa restart')
         self.expect('Restarting')
@@ -143,7 +186,7 @@ class DebianBox(base.BaseDevice):
         self.expect(self.prompt)
 
         # install packages required
-        self.sendline('apt-get -o DPkg::Options::="--force-confnew" -qy install tftpd-hpa isc-dhcp-server procps iptables lighttpd')
+        self.sendline('apt-get -o DPkg::Options::="--force-confnew" -qy install isc-dhcp-server procps iptables lighttpd')
         self.expect(self.prompt)
 
         # set WAN ip address
@@ -178,36 +221,8 @@ class DebianBox(base.BaseDevice):
         self.sendline('iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to-source %s' % wan_ip_uplink)
         self.expect(self.prompt)
 
-        #configure tftp server
-        self.sendline('/etc/init.d/tftpd-hpa stop')
-        self.expect('Stopping')
-        self.expect(self.prompt)
-        self.sendline('rm -rf /tftpboot')
-        self.expect(self.prompt)
-        self.sendline('rm -rf /srv/tftp')
-        self.expect(self.prompt)
-        self.sendline('mkdir -p /srv/tftp')
-        self.expect(self.prompt)
-        self.sendline('ln -sf /srv/tftp/ /tftpboot')
-        self.expect(self.prompt)
-        self.sendline('mkdir -p /tftpboot/tmp')
-        self.expect(self.prompt)
-        self.sendline('chmod a+w /tftpboot/tmp')
-        self.expect(self.prompt)
-        self.sendline('mkdir -p /tftpboot/crashdump')
-        self.expect(self.prompt)
-        self.sendline('chmod a+w /tftpboot/crashdump')
-        self.expect(self.prompt)
-        self.sendline('sed /TFTP_OPTIONS/d -i /etc/default/tftpd-hpa')
-        self.expect(self.prompt)
-        self.sendline('echo TFTP_OPTIONS=\\"-4 --secure --create\\" >> /etc/default/tftpd-hpa')
-        self.expect(self.prompt)
-        self.sendline('sed /TFTP_DIRECTORY/d -i /etc/default/tftpd-hpa')
-        self.expect(self.prompt)
-        self.sendline('echo TFTP_DIRECTORY=\\"/srv/tftp\\" >> /etc/default/tftpd-hpa')
-        self.expect(self.prompt)
-        self.sendline('/etc/init.d/tftpd-hpa restart')
-        self.expect(self.prompt)
+        # start tftpd server
+        self.start_tftp_server()
 
         self.sendline('echo 0 > /proc/sys/net/ipv4/tcp_timestamps')
         self.expect(self.prompt)
