@@ -79,7 +79,7 @@ class QcomMipsRouter(openwrt_router.OpenWrtRouter):
             self.expect(self.uprompt)
             return
         self.sendline('erase %s +$filesize' % self.kernel_addr)
-        self.expect('Erased .* sectors', timeout=60)
+        self.expect('Erased .* sectors', timeout=120)
         self.expect(self.uprompt)
         self.sendline('protect off all')
         self.expect(self.uprompt)
