@@ -118,67 +118,16 @@ class DebianBox(base.BaseDevice):
         self.expect("pppd")
         self.expect(self.prompt)
 
-    def restart_tftp_server(self):
-        self.sendline('\n/etc/init.d/tftpd-hpa restart')
-        self.expect('Restarting')
-        self.expect(self.prompt)
-
-    def configure(self, kind):
-        if kind == "wan_device":
-            self.setup_as_wan_gateway()
-        elif kind == "lan_device":
-            self.setup_as_lan_device()
-
-    def setup_as_wan_gateway(self):
-        self.sendline('killall iperf ab hping3')
-        self.expect(self.prompt)
-        self.sendline('\nsysctl net.ipv6.conf.all.disable_ipv6=0')
-        self.expect('sysctl ')
-        self.expect(self.prompt)
-
-        # potential cleanup so this wan device works
-        self.sendline('iptables -t nat -X')
-        self.expect(self.prompt)
-        self.sendline('iptables -t nat -F')
+    def start_tftp_server(self):
+        # set WAN ip address, for now this will always be this address for the device side
+        self.sendline('ifconfig eth1 down')
         self.expect(self.prompt)
 
         # install packages required
-        self.sendline('apt-get -o DPkg::Options::="--force-confnew" -qy install tftpd-hpa isc-dhcp-server procps iptables lighttpd')
-        self.expect(self.prompt)
+        self.sendline('apt-get -o DPkg::Options::="--force-confnew" -qy install tftpd-hpa')
 
-        # set WAN ip address
+        # set WAN ip address, for now this will always be this address for the device side
         self.sendline('ifconfig eth1 192.168.0.1')
-        self.expect(self.prompt)
-
-        # configure DHCP server
-        self.sendline('/etc/init.d/isc-dhcp-server stop')
-        self.expect(self.prompt)
-        self.sendline('sed s/INTERFACES=.*/INTERFACES=\\"eth1\\"/g -i /etc/default/isc-dhcp-server')
-        self.expect(self.prompt)
-        self.sendline('cat > /etc/dhcp/dhcpd.conf << EOF')
-        self.sendline('ddns-update-style none;')
-        self.sendline('option domain-name "bigfoot-test";')
-        if self.location == "chennai":
-            self.sendline('option domain-name-servers 10.12.0.151, 10.12.0.150, 129.46.132.7;')
-        else:
-            self.sendline('option domain-name-servers 10.222.148.20, 10.43.5.77, 10.43.6.93;')
-        self.sendline('default-lease-time 600;')
-        self.sendline('max-lease-time 7200;')
-        self.sendline('subnet 192.168.0.0 netmask 255.255.255.0 {')
-        self.sendline('          range 192.168.0.10 192.168.0.100;')
-        self.sendline('          option routers 192.168.0.1;')
-        self.sendline('}')
-        self.sendline('EOF')
-        self.expect(self.prompt)
-        self.sendline('/etc/init.d/isc-dhcp-server start')
-        self.expect(['Starting ISC DHCP server.*dhcpd.', 'Starting isc-dhcp-server.*'])
-        self.expect(self.prompt)
-
-        # configure routing
-        self.sendline('sysctl net.ipv4.ip_forward=1')
-        self.expect(self.prompt)
-        wan_ip_uplink = self.get_ip_addr("eth0")
-        self.sendline('iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to-source %s' % wan_ip_uplink)
         self.expect(self.prompt)
 
         #configure tftp server
@@ -210,6 +159,66 @@ class DebianBox(base.BaseDevice):
         self.sendline('echo TFTP_DIRECTORY=\\"/srv/tftp\\" >> /etc/default/tftpd-hpa')
         self.expect(self.prompt)
         self.sendline('/etc/init.d/tftpd-hpa restart')
+        self.expect(self.prompt)
+
+    def restart_tftp_server(self):
+        self.sendline('\n/etc/init.d/tftpd-hpa restart')
+        self.expect('Restarting')
+        self.expect(self.prompt)
+
+    def configure(self, kind):
+        if kind == "wan_device":
+            self.setup_as_wan_gateway()
+        elif kind == "lan_device":
+            self.setup_as_lan_device()
+
+    def setup_as_wan_gateway(self):
+        self.sendline('killall iperf ab hping3')
+        self.expect(self.prompt)
+        self.sendline('\nsysctl net.ipv6.conf.all.disable_ipv6=0')
+        self.expect('sysctl ')
+        self.expect(self.prompt)
+
+        # potential cleanup so this wan device works
+        self.sendline('iptables -t nat -X')
+        self.expect(self.prompt)
+        self.sendline('iptables -t nat -F')
+        self.expect(self.prompt)
+
+        # install packages required
+        self.sendline('apt-get -o DPkg::Options::="--force-confnew" -qy install isc-dhcp-server procps iptables lighttpd')
+        self.expect(self.prompt)
+
+        # set WAN ip address
+        self.sendline('ifconfig eth1 192.168.0.1')
+        self.expect(self.prompt)
+
+        # configure DHCP server
+        self.sendline('/etc/init.d/isc-dhcp-server stop')
+        self.expect(self.prompt)
+        self.sendline('sed s/INTERFACES=.*/INTERFACES=\\"eth1\\"/g -i /etc/default/isc-dhcp-server')
+        self.expect(self.prompt)
+        self.sendline('cat > /etc/dhcp/dhcpd.conf << EOF')
+        self.sendline('ddns-update-style none;')
+        self.sendline('option domain-name "bigfoot-test";')
+        self.sendline('option domain-name-servers 8.8.8.8, 8.8.4.4;')
+        self.sendline('default-lease-time 600;')
+        self.sendline('max-lease-time 7200;')
+        self.sendline('subnet 192.168.0.0 netmask 255.255.255.0 {')
+        self.sendline('          range 192.168.0.10 192.168.0.100;')
+        self.sendline('          option routers 192.168.0.1;')
+        self.sendline('}')
+        self.sendline('EOF')
+        self.expect(self.prompt)
+        self.sendline('/etc/init.d/isc-dhcp-server start')
+        self.expect(['Starting ISC DHCP server.*dhcpd.', 'Starting isc-dhcp-server.*'])
+        self.expect(self.prompt)
+
+        # configure routing
+        self.sendline('sysctl net.ipv4.ip_forward=1')
+        self.expect(self.prompt)
+        wan_ip_uplink = self.get_ip_addr("eth0")
+        self.sendline('iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to-source %s' % wan_ip_uplink)
         self.expect(self.prompt)
 
         self.sendline('echo 0 > /proc/sys/net/ipv4/tcp_timestamps')

@@ -22,6 +22,18 @@ class RootFSBootTest(linux_boot.LinuxBootTest):
         wan.configure(kind="wan_device")
         if lan:
             lan.configure(kind="lan_device")
+
+        # start tftpd server on appropriate device
+        if self.config.board.get('wan_device', None) is not None:
+            wan.start_tftp_server()
+        else:
+            tftp_servers = [ x['name'] for x in self.config.board['devices'] if 'tftpd-server' in x.get('options', "") ]
+            # start all tftp servers for now
+            for tftp_server in tftp_servers:
+                tftp_device = getattr(self.config, tftp_server)
+                tftp_device.start_tftp_server()
+
+
         board.reset()
         rootfs = None
 

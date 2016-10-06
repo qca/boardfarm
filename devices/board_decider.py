@@ -19,7 +19,7 @@ def board(model, **kwargs):
     different memory addresses, and must be handled differently.
     '''
     if model in ("db120", "ap135", "ap143", "ap147", "ap152", "ap151",
-                 "ap151-16M", "ap143", "ap152-8M"):
+                 "ap151-16M", "ap143", "ap152-8M", "tew-823dru"):
         return qcom_mips.QcomMipsRouter(model, **kwargs)
 
     if model in ("ipq8066", "db149", "ap145", "ap148", "ap148-osprey",

@@ -17,10 +17,21 @@ def print_subclasses(cls):
         print(x.__name__)
         print_subclasses(x)
 
+
 class Interact(rootfs_boot.RootFSBootTest):
     '''Interact with console, wan, lan, wlan connections and re-run tests'''
-    def runTest(self):
 
+    def print_legacy_devices(self):
+        print("  LAN device:    ssh %s@%s" % (self.config.board.get('lan_username', "root"), self.config.board.get('lan_device')))
+        print("  WAN device:    ssh %s@%s" % (self.config.board.get('wan_username', "root") ,self.config.board.get('wan_device')))
+
+    def print_dynamic_devices(self):
+        for device in self.config.devices:
+            d = getattr(self.config, device)
+            print("  %s device:    ssh %s@%s" % (device, d.username, d.name))
+
+    def runTest(self):
+        legacy = hasattr(self.config, "wan_device")
         lib.common.test_msg("Press Ctrl-] to stop interaction and return to menu")
         board.sendline()
         try:
@@ -31,31 +42,46 @@ class Interact(rootfs_boot.RootFSBootTest):
         while True:
             print("\n\nCurrent station")
             print("  Board console: %s" % self.config.board.get('conn_cmd'))
-            print("  LAN device:    ssh %s@%s" % (self.config.board.get('lan_username', "root"), self.config.board.get('lan_device')))
-            print("  WAN device:    ssh %s@%s" % (self.config.board.get('wan_username', "root") ,self.config.board.get('wan_device')))
+            if legacy:
+                self.print_legacy_devices()
+            self.print_dynamic_devices()
             print('Pro-tip: Increase kernel message verbosity with\n'
                   '    echo "7 7 7 7" > /proc/sys/kernel/printk')
             print("Menu")
             print("  1: Enter console")
-            print("  2: Enter wan console")
-            print("  3: Enter lan console")
-            print("  4: Enter wlan console")
-            print("  5: List all tests")
-            print("  6: Run test")
-            print("  7: Reset board")
-            print("  8: Enter interactive python shell")
+            i = 2
+            if legacy: 
+                print("  2: Enter wan console")
+                print("  3: Enter lan console")
+                print("  4: Enter wlan console")
+                i = 5
+
+            print("  %s: List all tests" % i)
+            i += 1
+            print("  %s: Run test" % i)
+            i += 1
+            print("  %s: Reset board" % i)
+            i += 1
+            print("  %s: Enter interactive python shell" % i)
+            i += 1
+            if len(self.config.devices) > 0:
+                print("  Type a device name to connect: %s" % self.config.devices)
             print("  x: Exit")
             key = raw_input("Please select: ")
 
+            if key in self.config.devices:
+                d = getattr(self.config, key)
+                d.interact()
+
             if key == "1":
                 board.interact()
-            elif key == "2":
+            elif legacy and key == "2":
                 wan.interact()
-            elif key == "3":
+            elif legacy and key == "3":
                 lan.interact()
-            elif key == "4":
+            elif legacy and key == "4":
                 wlan.interact()
-            elif key == "5":
+            elif (legacy and key == "5") or key == "2":
                 try:
                     # re import the tests
                     test_files = glob.glob(os.path.dirname(__file__)+"/*.py")
@@ -68,7 +94,7 @@ class Interact(rootfs_boot.RootFSBootTest):
                     rfs_boot = rootfs_boot.RootFSBootTest
                     print("Available tests:")
                     print_subclasses(rfs_boot)
-            elif key == "6":
+            elif (legacy and key == "6") or key == "3":
                 try:
                     # re import the tests
                     test_files = glob.glob(os.path.dirname(__file__)+"/*.py")
@@ -94,11 +120,11 @@ class Interact(rootfs_boot.RootFSBootTest):
                     except:
                         print("Unable to (re-)run specified test")
 
-            elif key == "7":
+            elif (legacy and key == "7") or key == "4":
                 board.reset()
                 print("Press Ctrl-] to stop interaction and return to menu")
                 board.interact()
-            elif key == "8":
+            elif (legacy and key == "8") or key == "5":
                 print "Enter python shell, press Ctrl-D to exit"
                 try:
                     from IPython import embed
