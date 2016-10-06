@@ -81,20 +81,7 @@ class RootFSBootTest(linux_boot.LinuxBootTest):
                 print("\nFailed to check/set the router's WAN protocol.")
                 pass
         board.wait_for_network()
-
-        # wait for overlay to finish mounting
-        for i in range(5):
-            try:
-                board.sendline('mount')
-                board.expect_exact('overlayfs:/overlay on / type overlay')
-                board.expect(prompt)
-            except:
-                if i == 4:
-                    lib.common.test_msg("WARN: Overlay still not mounted")
-                else:
-                    pass
-            else:
-                break
+        board.wait_for_mounts()
 
         # Router mac addresses are likely to change, so flush arp
         if lan:

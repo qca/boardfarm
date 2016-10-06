@@ -435,6 +435,21 @@ class OpenWrtRouter(base.BaseDevice):
         self.sendline('uci commit firewall')
         self.firewall_restart()
 
+    def wait_for_mounts(self):
+        # wait for overlay to finish mounting
+        for i in range(5):
+            try:
+                self.sendline('mount')
+                self.expect_exact('overlayfs:/overlay on / type overlay')
+                self.expect(prompt)
+            except:
+                if i == 4:
+                    print("WARN: Overlay still not mounted")
+                else:
+                    pass
+            else:
+                break
+
     # Optional send and expect functions to try and be fancy at catching errors
     in_detect_fatal_error = False
     def send(self, s):
