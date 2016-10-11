@@ -254,7 +254,7 @@ class DebianBox(base.BaseDevice):
         self.expect(self.prompt)
         self.sendline('echo 0 > /proc/sys/net/ipv4/tcp_sack')
         self.expect(self.prompt)
-        self.sendline('killall dhclient')
+        self.sendline('pkill --signal 9 -f dhclient.*eth1')
         self.expect(self.prompt)
 
     def start_lan_client(self):
