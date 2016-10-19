@@ -455,34 +455,48 @@ class OpenWrtRouter(base.BaseDevice):
                 break
 
     # Optional send and expect functions to try and be fancy at catching errors
-    in_detect_fatal_error = False
     def send(self, s):
-        if not self.in_detect_fatal_error and self.linux_booted:
-            self.in_detect_fatal_error = True
-            error_detect.detect_fatal_error(self)
-            self.in_detect_fatal_error = False
         if BFT_DEBUG:
             common.print_bold("%s = sending: %s" %
-                    (error_detect.caller_file_line(3), repr(s)))
+                              (error_detect.caller_file_line(3), repr(s)))
+
         return super(OpenWrtRouter, self).send(s)
 
-    def expect(self, *args, **kwargs):
-        if BFT_DEBUG:
-            common.print_bold("%s = expecting: %s" %
-                (error_detect.caller_file_line(2), repr(args[0])))
+    def expect_helper(self, pattern, wrapper, *args, **kwargs):
+        if not BFT_DEBUG:
+            return wrapper(pattern, *args, **kwargs)
+
+        common.print_bold("%s = expecting: %s" %
+                              (error_detect.caller_file_line(2), repr(pattern)))
         try:
-            return super(OpenWrtRouter, self).expect(*args, **kwargs)
+            ret = wrapper(pattern, *args, **kwargs)
+            if hasattr(self.match, "group"):
+                common.print_bold("%s = matched: %s" %
+                                  (error_detect.caller_file_line(2), repr(self.match.group())))
+            else:
+                common.print_bold("%s = matched: %s" %
+                                  (error_detect.caller_file_line(2), repr(pattern)))
+            return ret
         except:
-            if not self.in_detect_fatal_error and self.linux_booted:
-                self.in_detect_fatal_error = True
-                error_detect.detect_fatal_error(self)
-                self.in_detect_fatal_error = False
-            if BFT_DEBUG:
-                common.print_bold("expired")
+            common.print_bold("expired")
             raise
-        else:
-            if BFT_DEBUG:
-                common.print_bold("found")
+
+    def expect(self, pattern, *args, **kwargs):
+        wrapper = super(OpenWrtRouter, self).expect
+
+        return self.expect_helper(pattern, wrapper, *args, **kwargs)
+
+    def expect_exact(self, pattern, *args, **kwargs):
+        wrapper = super(OpenWrtRouter, self).expect_exact
+
+        return self.expect_helper(pattern, wrapper, *args, **kwargs)
+
+    def sendcontrol(self, char):
+        if BFT_DEBUG:
+            common.print_bold("%s = sending: control-%s" %
+                              (error_detect.caller_file_line(3), repr(char)))
+
+        return super(OpenWrtRouter, self).sendcontrol(char)
 
 if __name__ == '__main__':
     # Example use
