@@ -15,7 +15,7 @@ class LocalSerialConnection():
                            command='/bin/bash',
                            args=['-c', self.conn_cmd])
         try:
-            result = self.device.expect(".*Connected.*")
+            result = self.device.expect([".*Connected.*", "----------------------------------------------------"])
         except pexpect.EOF as e:
             raise Exception("Board is in use (connection refused).")
 
