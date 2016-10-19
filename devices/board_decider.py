@@ -34,7 +34,7 @@ def board(model, **kwargs):
         return qcom_dakota_nor.QcomDakotaRouterNOR(model, **kwargs)
 
     if model in ("wrt3200acm"):
-        return marvell.MarvellBoard(model, **kwargs)
+        return marvell.WRT3200ACM(model, **kwargs)
 
     # Default for all other models
     print("\nWARNING: Unknown board model '%s'." % model)

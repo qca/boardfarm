@@ -9,7 +9,7 @@ import common
 import openwrt_router
 
 
-class MarvellBoard(openwrt_router.OpenWrtRouter):
+class WRT3200ACM(openwrt_router.OpenWrtRouter):
     '''
     Marvell board
     '''
