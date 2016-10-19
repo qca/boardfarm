@@ -209,7 +209,7 @@ class OpenWrtRouter(base.BaseDevice):
                random.randint(0x00, 0xff)]
         return ':'.join(map(lambda x: "%02x" % x, mac))
 
-    def check_memory_addresses():
+    def check_memory_addresses(self):
         '''Check/set memory addresses and size for proper flashing.'''
         pass
 
