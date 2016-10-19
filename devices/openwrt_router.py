@@ -39,6 +39,7 @@ class OpenWrtRouter(base.BaseDevice):
 
     prompt = ['root\\@.*:.*#', '/ # ', '@R7500:/# ']
     uprompt = ['ath>', '\(IPQ\) #', 'ar7240>', '\(IPQ40xx\)']
+    uboot_eth = "eth0"
     linux_booted = False
     saveenv_safe = True
 
@@ -323,7 +324,7 @@ class OpenWrtRouter(base.BaseDevice):
         # Use standard eth1 address of wan-side computer
         self.sendline('setenv autoload no')
         self.expect(self.uprompt)
-        self.sendline('setenv ethact eth0')
+        self.sendline('setenv ethact %s' % self.uboot_eth)
         self.expect(self.uprompt)
         time.sleep(30) # running dhcp too soon causes hang
         self.sendline('dhcp')
