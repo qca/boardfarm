@@ -226,6 +226,9 @@ class OpenWrtRouter(base.BaseDevice):
     def flash_meta(self, META_BUILD):
         raise Exception('Code not written for flash_meta for this board type, %s.' % self.model)
 
+    def prepare_nfsroot(self, NFSROOT):
+        raise Exception('Code not written for prepare_nfsroot for this board type, %s.' % self.model)
+
     def wait_for_boot(self):
         '''
         Break into U-Boot. Check memory locations and sizes, and set

@@ -62,6 +62,8 @@ class RootFSBootTest(linux_boot.LinuxBootTest):
                 # save filename for cases where we didn't flash it
                 # but will use it later to load from memory
                 rootfs = board.flash_rootfs(self.config.ROOTFS)
+            if self.config.NFSROOT:
+                board.prepare_nfsroot(self.config.NFSROOT)
             if self.config.KERNEL:
                 board.flash_linux(self.config.KERNEL)
             # Boot from U-Boot to Linux
