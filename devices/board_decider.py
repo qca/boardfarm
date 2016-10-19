@@ -10,6 +10,7 @@ import qcom_akronite_nand
 import qcom_akronite_nor
 import qcom_dakota_nor
 import qcom_mips
+import marvell
 
 def board(model, **kwargs):
     '''
@@ -31,6 +32,9 @@ def board(model, **kwargs):
 
     if model in ("dk01-nor"):
         return qcom_dakota_nor.QcomDakotaRouterNOR(model, **kwargs)
+
+    if model in ("wrt3200acm"):
+        return marvell.MarvellBoard(model, **kwargs)
 
     # Default for all other models
     print("\nWARNING: Unknown board model '%s'." % model)
