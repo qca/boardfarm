@@ -39,6 +39,7 @@ class OpenWrtRouter(base.BaseDevice):
 
     prompt = ['root\\@.*:.*#', '/ # ', '@R7500:/# ']
     uprompt = ['ath>', '\(IPQ\) #', 'ar7240>', '\(IPQ40xx\)']
+    uboot_eth = "eth0"
     linux_booted = False
     saveenv_safe = True
 
@@ -209,7 +210,7 @@ class OpenWrtRouter(base.BaseDevice):
                random.randint(0x00, 0xff)]
         return ':'.join(map(lambda x: "%02x" % x, mac))
 
-    def check_memory_addresses():
+    def check_memory_addresses(self):
         '''Check/set memory addresses and size for proper flashing.'''
         pass
 
@@ -224,6 +225,9 @@ class OpenWrtRouter(base.BaseDevice):
 
     def flash_meta(self, META_BUILD):
         raise Exception('Code not written for flash_meta for this board type, %s.' % self.model)
+
+    def prepare_nfsroot(self, NFSROOT):
+        raise Exception('Code not written for prepare_nfsroot for this board type, %s.' % self.model)
 
     def wait_for_boot(self):
         '''
@@ -259,7 +263,7 @@ class OpenWrtRouter(base.BaseDevice):
 
         # save env first, so CRC is OK for later tests
         self.sendline("saveenv")
-        self.expect(["Writing to Nand... done", "Protected 1 sectors"])
+        self.expect(["Writing to Nand... done", "Protected 1 sectors", "Saving Environment to NAND..."])
         self.expect(self.uprompt)
 
     def kill_console_at_exit(self):
@@ -323,7 +327,7 @@ class OpenWrtRouter(base.BaseDevice):
         # Use standard eth1 address of wan-side computer
         self.sendline('setenv autoload no')
         self.expect(self.uprompt)
-        self.sendline('setenv ethact eth0')
+        self.sendline('setenv ethact %s' % self.uboot_eth)
         self.expect(self.uprompt)
         time.sleep(30) # running dhcp too soon causes hang
         self.sendline('dhcp')
@@ -434,6 +438,21 @@ class OpenWrtRouter(base.BaseDevice):
         self.sendline('uci set firewall.@rule[-1].target=%s' % target)
         self.sendline('uci commit firewall')
         self.firewall_restart()
+
+    def wait_for_mounts(self):
+        # wait for overlay to finish mounting
+        for i in range(5):
+            try:
+                self.sendline('mount')
+                self.expect_exact('overlayfs:/overlay on / type overlay')
+                self.expect(prompt)
+            except:
+                if i == 4:
+                    print("WARN: Overlay still not mounted")
+                else:
+                    pass
+            else:
+                break
 
     # Optional send and expect functions to try and be fancy at catching errors
     in_detect_fatal_error = False
