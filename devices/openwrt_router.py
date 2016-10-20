@@ -64,9 +64,9 @@ class OpenWrtRouter(base.BaseDevice):
             print("\nWARNING: Unknown connection type using ser2net\n")
             connection_type = "ser2net"
 
-        self.logfile_read = output
         self.connection = connection_decider.connection(connection_type, device=self, conn_cmd=conn_cmd, **kwargs)
         self.connection.connect()
+        self.logfile_read = output
 
         self.power = power.get_power_device(power_ip, outlet=power_outlet, username=power_username, password=power_password)
         self.model = model
