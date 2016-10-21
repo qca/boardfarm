@@ -8,15 +8,14 @@ class Ser2NetConnection():
     def connect(self):
         pexpect.spawn.__init__(self.device,
                                command='/bin/bash',
-                               args=['-c', self.conn_cmd],
-                               **kwargs)
+                               args=['-c', self.conn_cmd])
+
         try:
-            result = self.device.expect(["assword:", "ser2net", "OpenGear Serial Server"])
+            result = self.device.expect(["assword:", "ser2net.*\r\n", "OpenGear Serial Server"])
         except pexpect.EOF as e:
             raise Exception("Board is in use (connection refused).")
         if result == 0:
-            self.device.sendline(password)
-            self.device.expect("OpenGear Serial Server")
+            raise Exception("Password required and not supported")
 
     def close():
         self.device.sendline("~.")
