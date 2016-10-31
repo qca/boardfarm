@@ -94,6 +94,24 @@ class MemoryUse(rootfs_boot.RootFSBootTest):
         self.result_message = 'Used memory: %s MB. Free memory: %s MB.' % (mem_used/1000, mem_free/1000)
         self.logged['mem_used'] = mem_used/1000
 
+class SleepHalfMinute(rootfs_boot.RootFSBootTest):
+    '''Slept 30 seconds.'''
+    def recover(self):
+        board.sendcontrol('c')
+    def runTest(self):
+        board.check_output('date')
+        board.check_output('sleep 30', timeout=40)
+        board.check_output('date')
+
+class Sleep1Minute(rootfs_boot.RootFSBootTest):
+    '''Slept 1 minute.'''
+    def recover(self):
+        board.sendcontrol('c')
+    def runTest(self):
+        board.check_output('date')
+        board.check_output('sleep 60', timeout=70)
+        board.check_output('date')
+
 class Sleep2Minutes(rootfs_boot.RootFSBootTest):
     '''Slept 2 minutes.'''
     def recover(self):
