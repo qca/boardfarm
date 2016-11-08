@@ -72,35 +72,38 @@ class RootFSBootTest(linux_boot.LinuxBootTest):
         board.wait_for_linux()
         linux_booted_seconds_up = board.get_seconds_uptime()
         # Retry setting up wan protocol
-        for i in range(2):
-            time.sleep(10)
-            try:
-                if "pppoe" in self.config.WAN_PROTO:
-                    wan.turn_on_pppoe()
-                board.config_wan_proto(self.config.WAN_PROTO)
-                break
-            except:
-                print("\nFailed to check/set the router's WAN protocol.")
-                pass
-        board.wait_for_network()
+        if self.config.setup_device_networking:
+            for i in range(2):
+                time.sleep(10)
+                try:
+                    if "pppoe" in self.config.WAN_PROTO:
+                        wan.turn_on_pppoe()
+                    board.config_wan_proto(self.config.WAN_PROTO)
+                    break
+                except:
+                    print("\nFailed to check/set the router's WAN protocol.")
+                    pass
+            board.wait_for_network()
         board.wait_for_mounts()
 
-        # Router mac addresses are likely to change, so flush arp
-        if lan:
-            lan.ip_neigh_flush()
-        wan.ip_neigh_flush()
+        if self.config.setup_device_networking:
+            # Router mac addresses are likely to change, so flush arp
+            if lan:
+                lan.ip_neigh_flush()
+            wan.ip_neigh_flush()
 
-        # Clear default routes perhaps left over from prior use
-        if lan:
-            lan.sendline('\nip -6 route del default')
-            lan.expect(prompt)
-        wan.sendline('\nip -6 route del default')
-        wan.expect(prompt)
+            # Clear default routes perhaps left over from prior use
+            if lan:
+                lan.sendline('\nip -6 route del default')
+                lan.expect(prompt)
+            wan.sendline('\nip -6 route del default')
+            wan.expect(prompt)
 
         # Give other daemons time to boot and settle
-        for i in range(5):
-            board.get_seconds_uptime()
-            time.sleep(5)
+        if self.config.setup_device_networking:
+            for i in range(5):
+                board.get_seconds_uptime()
+                time.sleep(5)
 
         try:
             board.sendline("passwd")
@@ -129,12 +132,13 @@ class RootFSBootTest(linux_boot.LinuxBootTest):
         # Try to verify router has stayed up (and, say, not suddenly rebooted)
         end_seconds_up = board.get_seconds_uptime()
         print("\nThe router has been up %s seconds." % end_seconds_up)
-        assert end_seconds_up > linux_booted_seconds_up
-        assert end_seconds_up > 30
+        if self.config.setup_device_networking:
+            assert end_seconds_up > linux_booted_seconds_up
+            assert end_seconds_up > 30
 
         self.logged['boot_time'] = end_seconds_up
 
-        if lan:
+        if lan and self.config.setup_device_networking:
             lan.start_lan_client()
 
     reflash = False

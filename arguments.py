@@ -72,6 +72,7 @@ def parse():
     parser.add_argument('-a', '--analysis', metavar='', type=str, default=None, help='Only run post processing analysis on logs')
     owrt_tests_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "results", '')
     parser.add_argument('-o', '--output_dir', metavar='', type=str, default=owrt_tests_dir, help='Directory to output results files too')
+    parser.add_argument('-z', '--no-network', action='store_true', help='Skip basic network tests when booting')
     parser.add_argument('-c', '--config_file', metavar='', type=str, default=boardfarm_config_location, help='JSON config file for boardfarm')
 
     args = parser.parse_args()
@@ -221,6 +222,7 @@ def parse():
 
     config.WAN_PROTO = args.wan
     config.reboot_vms = args.reboot_vms
+    config.setup_device_networking = not args.no_network
 
     return config
 
