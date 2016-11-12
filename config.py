@@ -21,7 +21,7 @@ logging_server = None
 # Elasticsearch server. Data in JSON-format can be directly sent here.
 # Set to None or to a valid host, see documentation:
 #     https://elasticsearch-py.readthedocs.org/en/master/api.html#elasticsearch
-elasticsearch_server = None
+elasticsearch_server = os.environ.get('BFT_ELASTICSERVER', None)
 
 # Code change server like gerrit, github, etc... Used only in display
 # of the results html file to list links to code changes tested.
