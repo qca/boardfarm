@@ -19,6 +19,10 @@ def wifi_cycle(board, num_times=5, wlan_iface="ath0"):
     wifi_name = randomSSIDName()
     board.sendline('uci set wireless.@wifi-iface[0].ssid=%s' % wifi_name)
     board.expect(prompt)
+    board.sendline('uci set wireless.@wifi-iface[0].encryption=psk2')
+    board.expect(prompt)
+    board.sendline('uci set wireless.@wifi-iface[0].key=%s' % randomSSIDName())
+    board.expect(prompt)
     board.sendline('echo "7 7 7 7" > /proc/sys/kernel/printk')
     board.expect(prompt)
     for i in range(1, num_times+1):
