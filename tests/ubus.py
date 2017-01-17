@@ -59,7 +59,21 @@ def ubus_network_restart(session_id):
     reply = ubus_call(json)
     ubus_check_error(reply)
 
-class UBusTest(rootfs_boot.RootFSBootTest):
+def ubus_system_reboot(session_id):
+    json = { "jsonrpc": "2.0",
+              "id": 1,
+              "method": "call",
+              "params": [ session_id,
+                          "system",
+                          "reboot",
+                          { }
+                        ]
+           }
+
+    reply = ubus_call(json)
+    ubus_check_error(reply)
+
+class UBusTestNetworkRestart(rootfs_boot.RootFSBootTest):
     '''Various UBus tests'''
     def runTest(self):
 
@@ -72,3 +86,14 @@ class UBusTest(rootfs_boot.RootFSBootTest):
             # really starts
             time.sleep(5)
 
+class UBusTestSystemReboot(rootfs_boot.RootFSBootTest):
+    '''Various UBus tests'''
+    def runTest(self):
+
+        for i in range(1000):
+            print("\nRunning iteration of ubus json-rpc system reboot nubmer %s\n" % i)
+            session_id = ubus_login_session()
+            print("\nLogged in with sessionid = %s\n" % session_id)
+
+            ubus_system_reboot(session_id)
+            board.wait_for_linux()
