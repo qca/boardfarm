@@ -11,13 +11,25 @@ import json
 import time
 from devices import board, wan, lan, wlan, prompt
 
-def ubus_call(payload, ipaddr="192.168.1.1"):
+def ubus_call_raw(payload, ipaddr="192.168.1.1"):
     curl_cmd = "curl -d '%s' http://%s/ubus" % (json.dumps(payload), ipaddr)
     lan.sendline(curl_cmd)
     lan.expect("\r\n")
     lan.expect(prompt)
 
     return json.loads(lan.before)
+
+def ubus_call(session_id, ubus_object, ubus_func, params):
+    j = { "jsonrpc": "2.0",
+             "id": 1,
+             "method": "call",
+             "params": [ session_id,
+                         ubus_object,
+                         ubus_func,
+                         params
+                       ]
+           }
+    return ubus_call_raw(j)
 
 def ubus_check_error(reply, assert_on_err=True):
     if "error" in reply:
@@ -36,7 +48,7 @@ def ubus_login_raw(username="root", password="password"):
                                     "password": password  }
                        ]
            }
-    return ubus_call(json)
+    return ubus_call_raw(json)
 
 def ubus_login_session(username="root", password="password"):
     reply = ubus_login_raw(username, password)
@@ -56,7 +68,7 @@ def ubus_network_restart(session_id):
                         ]
            }
 
-    reply = ubus_call(json)
+    reply = ubus_call_raw(json)
     ubus_check_error(reply)
 
 def ubus_system_reboot(session_id):
@@ -64,13 +76,13 @@ def ubus_system_reboot(session_id):
               "id": 1,
               "method": "call",
               "params": [ session_id,
-                          "system",
-                          "reboot",
+                          "foo",
+                          "bar",
                           { }
                         ]
            }
 
-    reply = ubus_call(json)
+    reply = ubus_call_raw(json)
     ubus_check_error(reply)
 
 class UBusTestNetworkRestart(rootfs_boot.RootFSBootTest):
@@ -97,3 +109,11 @@ class UBusTestSystemReboot(rootfs_boot.RootFSBootTest):
 
             ubus_system_reboot(session_id)
             board.wait_for_linux()
+
+class UBusTestKrouter(rootfs_boot.RootFSBootTest):
+    '''Krouter UBus tests'''
+    def runTest(self):
+        ubus_call("00000000000000000000000000000000", "krouter", "add_krouter_endpoint", { "macaddr": "00:11:22:33:44:55" })
+        session_id = ubus_login_session()
+        ret = ubus_call(session_id, "krouter", "is_krouter_endpoint", { "macaddr": "00:11:22:33:44:55" })
+        print ret
