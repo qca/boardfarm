@@ -21,8 +21,10 @@ class WRT3200ACM(openwrt_router.OpenWrtRouter):
     def flash_linux(self, KERNEL):
         common.print_bold("\n===== Flashing linux =====\n")
         filename = self.prepare_file(KERNEL)
-        self.sendline('tftpboot $defaultLoadAddr %s && nand erase $priKernAddr $priFwSize && nand write $defaultLoadAddr $priKernAddr $filesize' % filename)
+        self.sendline('setenv firmwareName %s' % filename)
         self.expect(self.uprompt)
+        self.sendline('run update_both_images')
+        self.expect(self.uprompt, timeout=90)
 
     def boot_linux(self, rootfs=None):
         self.sendline('boot')
