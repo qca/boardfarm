@@ -9,6 +9,7 @@ import openwrt_router
 import qcom_akronite_nand
 import qcom_akronite_nor
 import qcom_dakota_nor
+import qcom_dakota_nand
 import qcom_mips
 import marvell
 
@@ -32,6 +33,9 @@ def board(model, **kwargs):
 
     if model in ("dk01-nor"):
         return qcom_dakota_nor.QcomDakotaRouterNOR(model, **kwargs)
+
+    if model in ("dk07-nand"):
+        return qcom_dakota_nand.QcomDakotaRouterNAND(model, **kwargs)
 
     if model in ("wrt3200acm"):
         return marvell.WRT3200ACM(model, **kwargs)
