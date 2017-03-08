@@ -14,16 +14,17 @@ class QcomAkroniteRouterNAND(qcom_arm_base.QcomArmBase):
     Board with an Akronite processor.
     '''
 
+    machid_table = {"db149": "125b", "ap145": "12ca",
+	  "ap148": "1260", "ap148-beeliner": "1260",
+	  "ap148-osprey": "1260", "ap160-1": "136b",
+	  "ap160-2": "136b", "ap161": "136c",
+	  "dk04": "8010001"}
+
     def __init__(self, *args, **kwargs):
         super(QcomAkroniteRouterNAND, self).__init__(*args, **kwargs)
         self.uboot_ddr_addr = "0x42000000"
-        machid_table = {"db149": "125b", "ap145": "12ca",
-                  "ap148": "1260", "ap148-beeliner": "1260",
-                  "ap148-osprey": "1260", "ap160-1": "136b",
-                  "ap160-2": "136b", "ap161": "136c",
-                  "dk04": "8010001"}
-        if self.model in machid_table:
-            self.machid = machid_table[self.model]
+        if self.model in self.machid_table:
+            self.machid = self.machid_table[self.model]
         else:
             raise Exception("Unknown machid for %s, please add to table")
 
