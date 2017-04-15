@@ -441,18 +441,16 @@ class OpenWrtRouter(base.BaseDevice):
 
     def wait_for_mounts(self):
         # wait for overlay to finish mounting
-        for i in range(5):
-            try:
-                self.sendline('mount')
-                self.expect_exact('overlayfs:/overlay on / type overlay')
-                self.expect(prompt)
-            except:
-                if i == 4:
-                    print("WARN: Overlay still not mounted")
-                else:
-                    pass
-            else:
-                break
+	for i in range(5):
+	    try:
+		board.sendline('mount')
+		board.expect_exact('overlayfs:/overlay on / type overlay', timeout=15)
+		board.expect(prompt)
+		break
+	    except:
+		pass
+	else:
+		print("WARN: Overlay still not mounted")
 
     # Optional send and expect functions to try and be fancy at catching errors
     def send(self, s):
