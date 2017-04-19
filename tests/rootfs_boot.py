@@ -107,9 +107,9 @@ class RootFSBootTest(linux_boot.LinuxBootTest):
 
         try:
             board.sendline("passwd")
-            board.expect("New password:", timeout=8)
+            board.expect("password:", timeout=8)
             board.sendline("password")
-            board.expect(["Retype password:", "Re-enter new password:"])
+            board.expect("password:")
             board.sendline("password")
             board.expect(prompt)
         except:

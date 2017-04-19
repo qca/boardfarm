@@ -192,6 +192,8 @@ class DebianBox(base.BaseDevice):
         # set WAN ip address
         self.sendline('ifconfig eth1 192.168.0.1')
         self.expect(self.prompt)
+        self.sendline('ifconfig eth1 up')
+        self.expect(self.prompt)
 
         # configure DHCP server
         self.sendline('/etc/init.d/isc-dhcp-server stop')
@@ -258,8 +260,12 @@ class DebianBox(base.BaseDevice):
         self.expect(self.prompt)
 
     def start_lan_client(self):
+        self.sendline('\nifconfig eth1 up')
+        self.expect('ifconfig eth1 up')
+        self.expect(self.prompt)
+	self.sendline("dhclient -r eth1")
+        self.expect(self.prompt)
         self.sendline('\nifconfig eth1 0.0.0.0')
-        self.expect('ifconfig eth1')
         self.expect(self.prompt)
         self.sendline('rm /var/lib/dhcp/dhclient.leases')
         self.expect(self.prompt)

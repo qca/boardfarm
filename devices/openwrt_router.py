@@ -238,7 +238,7 @@ class OpenWrtRouter(base.BaseDevice):
         for attempt in range(4):
             try:
                 self.expect('U-Boot', timeout=30)
-                i = self.expect(['Hit any key ', 'gpio 17 value 1'])
+                i = self.expect(['Hit any key ', 'gpio 17 value 1'] + self.uprompt)
                 if i == 1:
                     print("\n\nWARN: possibly need to hold down reset button to break into U-Boot\n\n")
                     self.expect('Hit any key ')
