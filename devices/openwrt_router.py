@@ -303,9 +303,9 @@ class OpenWrtRouter(base.BaseDevice):
         self.expect_exact(["Loading redirects", "* Running script '/usr/share/miniupnpd/firewall.include'", "Running script '/etc/firewall.user'"])
         if 'StreamBoost' in self.before:
             print("test_msg: Sleeping for Streamboost")
-            time.sleep(45)
+            self.expect(pexpect.TIMEOUT, timeout=45)
         else:
-            time.sleep(15)
+            self.expect(pexpect.TIMEOUT, timeout=15)
         self.expect(self.prompt, timeout=80)
         return int((datetime.now() - start).seconds)
 
@@ -329,7 +329,7 @@ class OpenWrtRouter(base.BaseDevice):
         self.expect(self.uprompt)
         self.sendline('setenv ethact %s' % self.uboot_eth)
         self.expect(self.uprompt)
-        time.sleep(30) # running dhcp too soon causes hang
+        self.expect(pexpect.TIMEOUT, timeout=30) # running dhcp too soon causes hang
         self.sendline('dhcp')
         i = self.expect(['Unknown command', 'DHCP client bound to address'], timeout=60)
         self.expect(self.uprompt)
@@ -362,7 +362,7 @@ class OpenWrtRouter(base.BaseDevice):
                     self.sendline('dhcp')
                     self.expect('DHCP client bound to address', timeout=60)
                     self.expect(self.uprompt)
-                time.sleep(1)
+                self.expect(pexpect.TIMEOUT, timeout=1)
             assert passed
         self.sendline('setenv dumpdir crashdump')
         if self.saveenv_safe:
@@ -387,7 +387,7 @@ class OpenWrtRouter(base.BaseDevice):
             raise Exception('U-Boot came back when booting kernel')
         # Give things time to start or crash on their own.
         # Some things, like wifi, take a while.
-        time.sleep(40)
+        self.expect(pexpect.TIMEOUT, timeout=40)
         self.sendline('\r')
         self.expect(self.prompt)
         self.sendline('uname -a')
@@ -402,7 +402,7 @@ class OpenWrtRouter(base.BaseDevice):
                 self.sendline("uci commit")
                 self.expect(self.prompt)
                 self.network_restart()
-                time.sleep(10)
+                self.expect(pexpect.TIMEOUT, timeout=10)
         if "pppoe" in proto:
             self.wan_iface = "pppoe-wan"
             if self.get_wan_proto() != "pppoe":
@@ -410,7 +410,7 @@ class OpenWrtRouter(base.BaseDevice):
                 self.sendline("uci commit")
                 self.expect(self.prompt)
                 self.network_restart()
-                time.sleep(10)
+                self.expect(pexpect.TIMEOUT, timeout=10)
 
     def uci_allow_wan_http(self):
         '''Allow access to webgui from devices on WAN interface.'''
