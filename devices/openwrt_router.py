@@ -42,6 +42,8 @@ class OpenWrtRouter(base.BaseDevice):
     uboot_eth = "eth0"
     linux_booted = False
     saveenv_safe = True
+    lan_iface = "eth1"
+    wan_iface = "eth0"
 
     def __init__(self,
                  model,
@@ -79,8 +81,6 @@ class OpenWrtRouter(base.BaseDevice):
                 self.tftp_password = tftp_password
         else:
             self.tftp_server = None
-        self.lan_iface = "eth1"
-        self.wan_iface = "eth0"
         atexit.register(self.kill_console_at_exit)
 
     def reset(self, break_into_uboot=False):
