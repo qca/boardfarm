@@ -17,6 +17,7 @@ class WRT3200ACM(openwrt_router.OpenWrtRouter):
     prompt = ['root\\@.*:.*#', ]
     uprompt = ['Marvell>>']
     uboot_eth = "egiga1"
+    wan_iface = "wan"
 
     def flash_linux(self, KERNEL):
         common.print_bold("\n===== Flashing linux =====\n")
