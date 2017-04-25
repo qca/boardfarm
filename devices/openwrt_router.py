@@ -267,7 +267,7 @@ class OpenWrtRouter(base.BaseDevice):
         self.expect(self.uprompt)
 
     def kill_console_at_exit(self):
-        self.kill(signal.SIGHUP)
+        self.kill(signal.SIGKILL)
 
     def wait_for_network(self):
         '''Wait until network interfaces have IP Addresses.'''
