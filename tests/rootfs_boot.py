@@ -68,6 +68,8 @@ class RootFSBootTest(linux_boot.LinuxBootTest):
                 board.flash_linux(self.config.KERNEL)
             # Boot from U-Boot to Linux
             board.boot_linux(rootfs=rootfs)
+        if hasattr(board, "pre_boot_linux"):
+            board.pre_boot_linux(wan=wan, lan=lan)
         board.linux_booted = True
         board.wait_for_linux()
         linux_booted_seconds_up = board.get_seconds_uptime()
