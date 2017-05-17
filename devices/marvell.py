@@ -36,6 +36,11 @@ class WRT3200ACM(openwrt_router.OpenWrtRouter):
             if 0 != self.expect([pexpect.TIMEOUT] + self.uprompt, timeout=0.1):
                 break
 
+    def wait_for_linux(self):
+        self.wait_for_boot()
+        self.sendline("boot")
+        super(WRT3200ACM, self).wait_for_linux()
+
     def flash_linux(self, KERNEL):
         common.print_bold("\n===== Flashing linux =====\n")
         filename = self.prepare_file(KERNEL)
