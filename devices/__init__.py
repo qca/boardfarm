@@ -25,6 +25,10 @@ def initialize_devices(configuration):
     wlan = configuration.wlan
     wlan2g = configuration.wlan2g
     wlan5g = configuration.wlan5g
+
+    for device in configuration.devices:
+        globals()[device] = getattr(configuration, device)
+
     board.root_type = None
     # Next few lines combines all the prompts into one list of unique prompts.
     # It lets test writers use "some_device.expect(prompt)"
