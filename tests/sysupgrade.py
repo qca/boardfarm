@@ -22,7 +22,7 @@ class Sysupgrade(rootfs_boot.RootFSBootTest):
         # output some stuff before we kill all the logs in the system, just
         # to be able to review these logs later
         board.sendline('logread')
-        board.expect(prompt)
+        board.expect(prompt, timeout=120)
         board.sendline('dmesg')
         board.expect(prompt)
 
