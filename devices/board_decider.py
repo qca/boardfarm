@@ -31,7 +31,7 @@ def board(model, **kwargs):
     if model in ("ap148-nor"):
         return qcom_akronite_nor.QcomAkroniteRouterNOR(model, **kwargs)
 
-    if model in ("dk01-nor"):
+    if model in ("dk01-nor", "dk04-nor"):
         return qcom_dakota_nor.QcomDakotaRouterNOR(model, **kwargs)
 
     if model in ("dk07-nand", "dk04-nand"):

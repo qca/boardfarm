@@ -10,15 +10,16 @@ import qcom_arm_base
 
 class QcomDakotaRouterNOR(qcom_arm_base.QcomArmBase):
     '''
-    Board with an Akronite processor.
+    Board with an Dakota processor.
     '''
+
+    uboot_ddr_addr = "0x88000000"
+    machid_table = {"dk01-nor": "8010000", "dk04-nor": "8010001"}
 
     def __init__(self, *args, **kwargs):
         super(QcomDakotaRouterNOR, self).__init__(*args, **kwargs)
-        self.uboot_ddr_addr = "0x88000000"
-        machid_table = {"dk01-nor": "8010000"}
-        if self.model in machid_table:
-            self.machid = machid_table[self.model]
+        if self.model in self.machid_table:
+            self.machid = self.machid_table[self.model]
         else:
             raise Exception("Unknown machid for %s, please add to table" % self.model)
 
