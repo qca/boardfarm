@@ -233,7 +233,7 @@ class DebianBox(base.BaseDevice):
 
         self.turn_off_pppoe()
 
-    def setup_as_lan_device(self):
+    def setup_as_lan_device(self, gw="192.168.1.1"):
         # potential cleanup so this wan device works
         self.sendline('killall iperf ab hping3')
         self.expect(self.prompt)
@@ -248,7 +248,7 @@ class DebianBox(base.BaseDevice):
         self.expect(self.prompt)
         self.sendline('iptables -F; iptables -X')
         self.expect(self.prompt)
-        self.sendline('iptables -t nat -A PREROUTING -p tcp --dport 222 -j DNAT --to-destination 192.168.1.1:22')
+        self.sendline('iptables -t nat -A PREROUTING -p tcp --dport 222 -j DNAT --to-destination %s:22' % gw)
         self.expect(self.prompt)
         self.sendline('iptables -t nat -A POSTROUTING -o eth1 -p tcp --dport 22 -j MASQUERADE')
         self.expect(self.prompt)
@@ -259,7 +259,7 @@ class DebianBox(base.BaseDevice):
         self.sendline('pkill --signal 9 -f dhclient.*eth1')
         self.expect(self.prompt)
 
-    def start_lan_client(self):
+    def start_lan_client(self, gw="192.168.1.1"):
         self.sendline('\nifconfig eth1 up')
         self.expect('ifconfig eth1 up')
         self.expect(self.prompt)
@@ -287,7 +287,7 @@ class DebianBox(base.BaseDevice):
         self.expect(self.prompt)
         self.sendline('route del default')
         self.expect(self.prompt)
-        self.sendline('route add default gw 192.168.1.1')
+        self.sendline('route add default gw %s' % gw)
         self.expect(self.prompt)
         # Setup HTTP proxy, so board webserver is accessible via this device
         self.sendline('apt-get -qy install tinyproxy curl apache2-utils nmap')
@@ -309,12 +309,12 @@ class DebianBox(base.BaseDevice):
         # Write a useful ssh config for routers
         self.sendline('mkdir -p ~/.ssh')
         self.sendline('cat > ~/.ssh/config << EOF')
-        self.sendline('Host 192.168.1.1')
+        self.sendline('Host %s' % gw)
         self.sendline('StrictHostKeyChecking no')
         self.sendline('UserKnownHostsFile=/dev/null')
         self.sendline('')
         self.sendline('Host krouter')
-        self.sendline('Hostname 192.168.1.1')
+        self.sendline('Hostname %s' % gw)
         self.sendline('StrictHostKeyChecking no')
         self.sendline('UserKnownHostsFile=/dev/null')
         self.sendline('EOF')
@@ -322,10 +322,11 @@ class DebianBox(base.BaseDevice):
         # Copy an id to the router so people don't have to type a password to ssh or scp
         self.sendline('[ -e /root/.ssh/id_rsa ] || ssh-keygen -N "" -f /root/.ssh/id_rsa')
         self.expect(self.prompt)
-        self.sendline('scp ~/.ssh/id_rsa.pub 192.168.1.1:/etc/dropbear/authorized_keys')
+        self.sendline('scp ~/.ssh/id_rsa.pub %s:/etc/dropbear/authorized_keys' % gw)
+        self.expect_exact('scp ~/.ssh/id_rsa.pub %s:/etc/dropbear/authorized_keys' % gw)
         try:
             # When resetting, no need for password
-            self.expect("root@192.168.1.1's password:", timeout=5)
+            self.expect("root@%s's password:" % gw, timeout=5)
             self.sendline('password')
         except:
             pass

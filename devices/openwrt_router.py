@@ -42,7 +42,8 @@ class OpenWrtRouter(base.BaseDevice):
     uboot_eth = "eth0"
     linux_booted = False
     saveenv_safe = True
-    lan_iface = "eth1"
+    lan_gmac_iface = "eth1"
+    lan_iface = "br-lan"
     wan_iface = "eth0"
 
     def __init__(self,
@@ -271,7 +272,7 @@ class OpenWrtRouter(base.BaseDevice):
 
     def wait_for_network(self):
         '''Wait until network interfaces have IP Addresses.'''
-        for interface in [self.wan_iface, "br-lan"]:
+        for interface in [self.wan_iface, self.lan_iface]:
             for i in range(5):
                 try:
                     ipaddr = self.get_interface_ipaddr(interface).strip()
