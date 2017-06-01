@@ -46,6 +46,8 @@ class OpenWrtRouter(base.BaseDevice):
     lan_iface = "br-lan"
     wan_iface = "eth0"
 
+    delaybetweenchar = None
+
     def __init__(self,
                  model,
                  conn_cmd,
@@ -458,6 +460,13 @@ class OpenWrtRouter(base.BaseDevice):
         if BFT_DEBUG:
             common.print_bold("%s = sending: %s" %
                               (error_detect.caller_file_line(3), repr(s)))
+
+        if self.delaybetweenchar is not None:
+            ret = 0
+            for char in s:
+                ret += super(OpenWrtRouter, self).send(char)
+                time.sleep(self.delaybetweenchar)
+            return ret
 
         return super(OpenWrtRouter, self).send(s)
 
