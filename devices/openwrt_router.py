@@ -272,7 +272,7 @@ class OpenWrtRouter(base.BaseDevice):
 
         # save env first, so CRC is OK for later tests
         self.sendline("saveenv")
-        self.expect(["Writing to Nand... done", "Protected 1 sectors", "Saving Environment to NAND..."])
+        self.expect(["Writing to Nand... done", "Protected 1 sectors", "Saving Environment to NAND...", 'Saving Environment to FAT...'])
         self.expect(self.uprompt)
 
     def kill_console_at_exit(self):
