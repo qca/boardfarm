@@ -47,6 +47,7 @@ class OpenWrtRouter(base.BaseDevice):
     wan_iface = "eth0"
 
     delaybetweenchar = None
+    uboot_net_delay = 30
 
     def __init__(self,
                  model,
@@ -332,7 +333,7 @@ class OpenWrtRouter(base.BaseDevice):
         self.expect(self.uprompt)
         self.sendline('setenv ethact %s' % self.uboot_eth)
         self.expect(self.uprompt)
-        self.expect(pexpect.TIMEOUT, timeout=30) # running dhcp too soon causes hang
+        self.expect(pexpect.TIMEOUT, timeout=self.uboot_net_delay) # running dhcp too soon causes hang
         self.sendline('dhcp')
         i = self.expect(['Unknown command', 'DHCP client bound to address'], timeout=60)
         self.expect(self.uprompt)
