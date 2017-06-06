@@ -172,12 +172,12 @@ class OpenWrtRouter(base.BaseDevice):
         self.expect(self.prompt)
         return new_fname
 
-    def tftp_get_file_uboot(self, loadaddr, filename):
+    def tftp_get_file_uboot(self, loadaddr, filename, timeout=30):
         '''Within u-boot, download file from tftp server.'''
         for attempt in range(2):
             try:
                 self.sendline("tftpboot %s %s" % (loadaddr, filename))
-                self.expect('Bytes transferred = (\d+) (.* hex)')
+                self.expect('Bytes transferred = (\d+) (.* hex)', timeout=timeout)
                 return int(self.match.group(1))
             except:
                 print("\nTFTP failed, let us try that again")
