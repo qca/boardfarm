@@ -12,6 +12,7 @@ import qcom_dakota_nor
 import qcom_dakota_nand
 import qcom_mips
 import marvell
+import rpi
 
 def board(model, **kwargs):
     '''
@@ -39,6 +40,9 @@ def board(model, **kwargs):
 
     if model in ("wrt3200acm"):
         return marvell.WRT3200ACM(model, **kwargs)
+
+    if model in ("rpi3"):
+        return rpi.RPI(model, **kwargs)
 
     # Default for all other models
     print("\nWARNING: Unknown board model '%s'." % model)
