@@ -36,6 +36,11 @@ class WRT3200ACM(openwrt_router.OpenWrtRouter):
             if 0 != self.expect([pexpect.TIMEOUT] + self.uprompt, timeout=0.1):
                 break
 
+        self.sendline('echo FOO')
+        self.expect('echo FOO')
+        self.expect('FOO')
+        sefl.expect(prompt)
+
     def wait_for_linux(self):
         self.wait_for_boot()
         self.sendline("boot")
