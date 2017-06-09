@@ -8,6 +8,7 @@
 import common
 import openwrt_router
 import pexpect
+import time
 
 class WRT3200ACM(openwrt_router.OpenWrtRouter):
     '''
@@ -32,14 +33,14 @@ class WRT3200ACM(openwrt_router.OpenWrtRouter):
         self.expect_exact('General initialization - Version: 1.0.0')
         for not_used in range(10):
             self.expect(pexpect.TIMEOUT, timeout=0.1)
-            self.sendline(' ')
+            self.sendline('echo FOO')
+            if 0 != self.expect([pexpect.TIMEOUT] + ['echo FOO'], timeout=0.1):
+                break
+            if 0 != self.expect([pexpect.TIMEOUT] + ['FOO'], timeout=0.1):
+                break
             if 0 != self.expect([pexpect.TIMEOUT] + self.uprompt, timeout=0.1):
                 break
-
-        self.sendline('echo FOO')
-        self.expect('echo FOO')
-        self.expect('FOO')
-        sefl.expect(prompt)
+            time.sleep(1)
 
     def wait_for_linux(self):
         self.wait_for_boot()
