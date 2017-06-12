@@ -320,17 +320,20 @@ class DebianBox(base.BaseDevice):
         self.sendline('EOF')
         self.expect(self.prompt)
         # Copy an id to the router so people don't have to type a password to ssh or scp
-        self.sendline('[ -e /root/.ssh/id_rsa ] || ssh-keygen -N "" -f /root/.ssh/id_rsa')
-        self.expect(self.prompt)
-        self.sendline('scp ~/.ssh/id_rsa.pub %s:/etc/dropbear/authorized_keys' % gw)
-        self.expect_exact('scp ~/.ssh/id_rsa.pub %s:/etc/dropbear/authorized_keys' % gw)
-        try:
-            # When resetting, no need for password
-            self.expect("root@%s's password:" % gw, timeout=5)
-            self.sendline('password')
-        except:
-            pass
-        self.expect(self.prompt)
+        self.sendline('nc %s 22 -w 1' % gw)
+        self.expect_exact('nc %s 22 -w 1' % gw)
+        if 0 == self.expect(['SSH'] + self.prompt, timeout=5):
+            self.sendline('[ -e /root/.ssh/id_rsa ] || ssh-keygen -N "" -f /root/.ssh/id_rsa')
+            self.expect(self.prompt)
+            self.sendline('scp ~/.ssh/id_rsa.pub %s:/etc/dropbear/authorized_keys' % gw)
+            self.expect_exact('scp ~/.ssh/id_rsa.pub %s:/etc/dropbear/authorized_keys' % gw)
+            try:
+                # When resetting, no need for password
+                self.expect("root@%s's password:" % gw, timeout=5)
+                self.sendline('password')
+            except:
+                pass
+            self.expect(self.prompt)
 
 if __name__ == '__main__':
     # Example use
