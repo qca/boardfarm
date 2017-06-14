@@ -391,9 +391,12 @@ class OpenWrtRouter(base.BaseDevice):
             self.sendcontrol('c')
             self.expect(self.uprompt)
             self.sendline('boot')
-        i = self.expect(['U-Boot', 'Please press Enter to activate this console'] + self.prompt, timeout=150)
+        i = self.expect(['U-Boot', 'login:', 'Please press Enter to activate this console'] + self.prompt, timeout=150)
         if i == 0:
             raise Exception('U-Boot came back when booting kernel')
+        elif i == 1:
+            self.sendline('root')
+
         # Give things time to start or crash on their own.
         # Some things, like wifi, take a while.
         self.expect(pexpect.TIMEOUT, timeout=40)
