@@ -123,6 +123,7 @@ def main():
                                                  tftp_username=config.board.get('wan_username', 'root'),
                                                  tftp_password=config.board.get('wan_password', 'bigfoot1'),
                                                  connection_type=config.board.get('connection_type', None),
+                                                 key_password=config.board.get('key_password', None),
                                                  power_username=config.board.get('power_username', None),
                                                  power_password=config.board.get('power_password', None))
             print_bold("dut device console = %s" % colored("black", 'grey'))
