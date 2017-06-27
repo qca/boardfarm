@@ -60,13 +60,39 @@ class RPI(openwrt_router.OpenWrtRouter):
         size = self.tftp_get_file_uboot(self.uboot_ddr_addr, filename, timeout=160)
         self.sendline('mmc part')
         # get offset of ext (83) partition after a fat (0c) partition
-        self.expect('0c( Boot)?\r\n\s+\d+\s+(\d+).*83\r\n')
-        start = hex(int(self.match.groups()[-1]))
+        self.expect('0c( Boot)?\r\n\s+\d+\s+(\d+)\s+(\d+).*83\r\n')
+        start = hex(int(self.match.groups()[-2]))
+        sectors = int(self.match.groups()[-1])
         self.expect(self.uprompt)
+
+        # increase partition size if required
+        if (int(size) > (sectors * 512)):
+            self.sendline("mmc read %s 0 1" % self.uboot_ddr_addr)
+            self.expect(self.uprompt)
+            gp2_sz = int(self.uboot_ddr_addr, 16) + int("0x1da", 16)
+            self.sendline("mm 0x%08x" % gp2_sz)
+            self.expect("%08x: %08x ?" % (gp2_sz, sectors))
+            # pad 100M
+            self.sendline('0x%08x' % int((int(size) + 104857600) / 512))
+            self.sendcontrol('c')
+            self.sendcontrol('c')
+            self.expect(self.uprompt)
+            self.sendline('echo FOO')
+            self.expect_exact('echo FOO')
+            self.expect_exact('FOO')
+            self.expect(self.uprompt)
+            self.sendline("mmc write %s 0 1" % self.uboot_ddr_addr)
+            self.expect(self.uprompt)
+            self.sendline('mmc rescan')
+            self.expect(self.uprompt)
+            self.sendline('mmc part')
+            self.expect(self.uprompt)
+
         count = hex(int(size/512))
         self.sendline('mmc erase %s %s' % (start, count))
         self.expect(self.uprompt)
         self.sendline('mmc write %s %s %s' % (self.uboot_ddr_addr, start, count))
+        self.expect_exact('mmc write %s %s %s' % (self.uboot_ddr_addr, start, count))
         self.expect(self.uprompt, timeout=120)
 
     def flash_linux(self, KERNEL):
