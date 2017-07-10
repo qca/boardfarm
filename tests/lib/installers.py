@@ -26,6 +26,17 @@ def install_iperf(device):
         device.sendline('apt-get -o DPkg::Options::="--force-confnew" -y --force-yes install iperf')
         device.expect(device.prompt, timeout=60)
 
+def install_iperf3(device):
+    '''Install iPerf benchmark tool if not present.'''
+    device.sendline('\niperf3 -v')
+    try:
+        device.expect('iperf 3', timeout=5)
+        device.expect(device.prompt)
+    except:
+        device.expect(device.prompt)
+        device.sendline('apt-get -o DPkg::Options::="--force-confnew" -y --force-yes install iperf3')
+        device.expect(device.prompt, timeout=60)
+
 def install_lighttpd(device):
     '''Install lighttpd web server if not present.'''
     device.sendline('\nlighttpd -v')
