@@ -22,3 +22,6 @@ RUN apt-get update && \
 	iperf \
 	iperf3 \
 	netcat
+
+RUN mkdir /var/run/sshd
+RUN sed -i 's/PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
