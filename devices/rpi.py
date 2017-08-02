@@ -57,7 +57,7 @@ class RPI(openwrt_router.OpenWrtRouter):
         common.print_bold("\n===== Flashing rootfs =====\n")
         filename = self.prepare_file(ROOTFS)
 
-        size = self.tftp_get_file_uboot(self.uboot_ddr_addr, filename, timeout=160)
+        size = self.tftp_get_file_uboot(self.uboot_ddr_addr, filename, timeout=220)
         self.sendline('mmc part')
         # get offset of ext (83) partition after a fat (0c) partition
         self.expect('0c( Boot)?\r\n\s+\d+\s+(\d+)\s+(\d+).*83\r\n')
