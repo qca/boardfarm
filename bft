@@ -119,6 +119,7 @@ def main():
                 elif tftp_server is None:
                     tftp_server = [ x['ipaddr'] for x in config.board['devices'] if x['name'] == 'wan' ][0]
             except:
+                # if not by ipaddr let's connect to the lan device later and update
                 pass
 
             # Connect to board
@@ -140,6 +141,14 @@ def main():
 
             if 'devices' in config.board:
                 setup_dynamic_devices(config)
+
+            if tftp_server is None and hasattr(config, 'wan'):
+                saved = config.console.logfile_read
+                config.console.logfile_read = None
+                config.console.tftp_server = config.wan.get_ip_addr("eth0")
+                config.console.tftp_username = "root"
+                config.console.tftp_password = "bigfoot1"
+                config.console.logfile_read = saved
 
         except Exception as e:
             print(e)
