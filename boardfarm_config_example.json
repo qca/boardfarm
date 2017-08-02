@@ -1,22 +1,31 @@
 {
-    "board01": {
-        "board_type": "apXYZ",
-        "conn_cmd": "telnet consoleserver.mysite.com 6001",
-        "lan_device": "machine01",
-        "location": "austin",
-        "powerip": "pdu.mysite.com",
-        "powerport": "8",
-        "wan_device": "machine02",
-        "notes": "Old board"
-    },
-    "board02": {
-        "board_type": "apXYZ",
-        "conn_cmd": "telnet consoleserver.mysite.com 6002",
-        "lan_device": "machine03",
-        "location": "austin",
-        "powerip": "pdu.mysite.com",
-        "powerport": "3",
-        "wan_device": "machine04",
-        "notes": "Has 512 MB of memory"
+    "rpi3-1": {
+        "board_type": "rpi3",
+        "conn_cmd": "cu -l /dev/ttyUSB4 -s 115200",
+	"devices": [
+		{
+			"type": "debian",
+			"name": "wan",
+			"pre_cmd_host": "docker build -t bft:node bft-node",
+			"cmd": "docker run --name wan --privileged -it bft:node /bin/bash",
+			"post_cmd_host": "sudo ip link set netns $(docker inspect --format '{{.State.Pid}}' wan) dev enx00249b14dc6e",
+			"post_cmd": "ip link set enx00249b14dc6e name eth1",
+			"cleanup_cmd": "docker stop wan; docker rm wan",
+			"color": "cyan",
+			"options": "tftpd-server"
+		},
+		{
+			"type": "debian",
+			"name": "lan",
+			"pre_cmd_host": "docker build -t bft:node bft-node",
+			"cmd": "docker run --name lan --privileged -it bft:node /bin/bash",
+			"post_cmd_host": "sudo ip link set netns $(docker inspect --format '{{.State.Pid}}' lan) dev enx0050b61bfde4",
+			"post_cmd": "ip link set enx0050b61bfde4 name eth1",
+			"cleanup_cmd": "docker stop lan; docker rm lan",
+			"color": "blue"
+		}
+	],
+	"connection_type": "local_serial",
+        "notes": "Rpi3 device with docker containers attached to WAN/LAN"
     }
 }

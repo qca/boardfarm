@@ -66,13 +66,17 @@ def setup_dynamic_devices(config):
     config.devices = []
     for device in config.board['devices']:
         if device['type'] == 'debian':
-            #TODO: support conn_cmd and ipaddr (for ssh)
-            d = debian.DebianBox(name=device['ipaddr'],
+            d = debian.DebianBox(name=device.get('ipaddr', None),
                 color=device.get('color', 'black'),
                 reboot=config.reboot_vms,
                 username=device.get('username', "root"),
                 password=device.get('password', "bigfoot1"),
-                port=config.board.get('port', "22"))
+                port=config.board.get('port', "22"),
+                pre_cmd_host=device.get('pre_cmd_host', None),
+                cmd=device.get('cmd', None),
+                post_cmd_host=device.get('post_cmd_host', None),
+                post_cmd=device.get('post_cmd', None),
+                cleanup_cmd=device.get('cleanup_cmd', None))
             setattr(config, device['name'], d)
             config.devices.append(device['name'])
         else:
@@ -104,14 +108,18 @@ def main():
         print_bold("Connecting to board named = %s, type = %s ..." % (name, config.board['board_type']))
         try:
             # If we find a dynamic device with the tftpd-server option let's use that for the server
-            # otherwise we use the device with the 'wan' name
+            # otherwise we use the device with the 'wan' name... finally if we don't find an ip address let's
+            # manually figure it out later
             tftp_server = None
-            if 'devices' in config.board:
-                tftp_servers = [ x['ipaddr'] for x in config.board['devices'] if 'tftpd-server' in x.get('options', "") ]
-                if len(tftp_servers) == 1:
-                    tftp_server = tftp_servers[0]
-            elif tftp_server is None:
-                tftp_server = [ x['ipaddr'] for x in config.board['devices'] if x['name'] == 'wan' ][0]
+            try:
+                if 'devices' in config.board:
+                    tftp_servers = [ x['ipaddr'] for x in config.board['devices'] if 'tftpd-server' in x.get('options', "") ]
+                    if len(tftp_servers) == 1:
+                        tftp_server = tftp_servers[0]
+                elif tftp_server is None:
+                    tftp_server = [ x['ipaddr'] for x in config.board['devices'] if x['name'] == 'wan' ][0]
+            except:
+                pass
 
             # Connect to board
             config.console = board_decider.board(config.board['board_type'],

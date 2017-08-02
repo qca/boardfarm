@@ -9,6 +9,7 @@ import sys
 import time
 import pexpect
 import base
+import atexit
 
 from termcolor import colored, cprint
 
@@ -28,25 +29,43 @@ class DebianBox(base.BaseDevice):
                  port,
                  output=sys.stdout,
                  reboot=False,
-                 location=None):
-        if name is None:
-            return
-        pexpect.spawn.__init__(self,
-                               command="ssh",
-                               args=['%s@%s' % (username, name),
-                                     '-p', port,
-                                     '-o', 'StrictHostKeyChecking=no',
-                                     '-o', 'UserKnownHostsFile=/dev/null'])
-        self.name = name
+                 location=None,
+                 pre_cmd_host=None,
+                 cmd=None,
+                 post_cmd_host=None,
+                 post_cmd=None,
+                 cleanup_cmd=None):
+        if name is not None:
+            pexpect.spawn.__init__(self,
+                                   command="ssh",
+                                   args=['%s@%s' % (username, name),
+                                         '-p', port,
+                                         '-o', 'StrictHostKeyChecking=no',
+                                         '-o', 'UserKnownHostsFile=/dev/null'])
+            self.name = name
+        else:
+            name = None
+            if pre_cmd_host is not None:
+                sys.stdout.write("\tRunning pre_host_cmd.... ")
+                sys.stdout.flush()
+                phc = pexpect.spawn(command='bash', args=['-c', pre_cmd_host])
+                phc.expect(pexpect.EOF, timeout=120)
+                print("\tpre_host_cmd done")
+
+            if cleanup_cmd is not None:
+                self.cleanup_cmd = cleanup_cmd
+                atexit.register(self.run_cleanup_cmd)
+
+            pexpect.spawn.__init__(self, command="bash", args=['-c', cmd])
+
         self.color = color
         self.output = output
         self.username = username
         self.password = password
         self.port = port
         self.location = location
-        cprint("%s device console = %s" % (name, colored(color, color)), None, attrs=['bold'])
         try:
-            i = self.expect(["yes/no", "assword:", "Last login"], timeout=30)
+            i = self.expect(["yes/no", "assword:", "Last login"] + self.prompt, timeout=30)
         except pexpect.TIMEOUT as e:
             raise Exception("Unable to connect to %s." % name)
         except pexpect.EOF as e:
@@ -60,12 +79,43 @@ class DebianBox(base.BaseDevice):
             self.sendline(password)
         else:
             pass
-        self.expect(self.prompt)
+        # if we did initially get a prompt wait for one here
+        if i < 3:
+            self.expect(self.prompt)
+
+        if name is None:
+            self.sendline('hostname')
+            self.expect('hostname')
+            self.expect(self.prompt)
+            name = self.name = self.before.strip()
+
+        cprint("%s device console = %s" % (name, colored(color, color)), None, attrs=['bold'])
+
+        if post_cmd_host is not None:
+            sys.stdout.write("\tRunning post_cmd_host.... ")
+            sys.stdout.flush()
+            phc = pexpect.spawn(command='bash', args=['-c', post_cmd_host])
+            i = phc.expect([pexpect.EOF, pexpect.TIMEOUT, 'password'])
+            if i > 0:
+                print("\tpost_cmd_host did not complete, it likely failed\n")
+            else:
+                print("\tpost_cmd_host done")
+
+        if post_cmd is not None:
+            self.sendline(post_cmd)
+            self.expect(self.prompt)
 
         if reboot:
             self.reset()
 
         self.logfile_read = output
+
+    def run_cleanup_cmd(self):
+        sys.stdout.write("Running cleanup_cmd on %s..." % self.name)
+        sys.stdout.flush()
+        cc = pexpect.spawn(command='bash', args=['-c', self.cleanup_cmd])
+        cc.expect(pexpect.EOF, timeout=120)
+        print("cleanup_cmd done.")
 
     def reset(self):
         self.sendline('reboot')
