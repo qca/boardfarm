@@ -30,7 +30,7 @@ def get_power_device(ip_address, username=None, password=None, outlet=None):
     '''
 
     if ip_address is None:
-        if "wemo://" in outlet:
+        if outlet is not None and "wemo://" in outlet:
             if WemoEnv is None:
                 print("Please install ouimeaux: pip install ouimeaux")
             else:
