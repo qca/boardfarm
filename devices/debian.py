@@ -245,6 +245,14 @@ class DebianBox(base.BaseDevice):
         self.sendline('ifconfig eth1 up')
         self.expect(self.prompt)
 
+        # start openssh server if not running:
+        self.sendline('/etc/init.d/ssh start')
+        self.expect(self.prompt)
+        self.sendline('sed "s/PermitRootLogin.*/PermitRootLogin yes/g" -i /etc/ssh/sshd_config')
+        self.expect(self.prompt)
+        self.sendline('/etc/init.d/ssh reload')
+        self.expect(self.prompt)
+
         # configure DHCP server
         self.sendline('/etc/init.d/isc-dhcp-server stop')
         self.expect(self.prompt)
