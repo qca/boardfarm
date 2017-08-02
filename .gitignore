@@ -70,3 +70,6 @@ results/
 
 # Text editor temporally files
 *.swp
+
+# ctas
+TAGS
