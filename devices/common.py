@@ -64,7 +64,7 @@ def download_from_web(url, server, username, password):
     except urllib2.URLError as e:
         print_bold("HTTP url %s returned %s, exiting" % (url, e.args))
         sys.exit(11)
-    cmd = "curl -L -k '%s' 2>/dev/null | ssh -x %s@%s \"tmpfile=\`mktemp /tftpboot/tmp/XXXXX\`; cat - > \$tmpfile; chmod a+rw \$tmpfile; echo \$tmpfile\"" % (url, username, server)
+    cmd = "curl -L -k '%s' 2>/dev/null | ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -x %s@%s \"tmpfile=\`mktemp /tftpboot/tmp/XXXXX\`; cat - > \$tmpfile; chmod a+rw \$tmpfile; echo \$tmpfile\"" % (url, username, server)
     return copy_file_to_server(cmd, password)
 
 def scp_to_tftp_server(fname, server, username, password):
