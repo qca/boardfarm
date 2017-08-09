@@ -15,7 +15,7 @@ class QcomDakotaRouterNAND(qcom_akronite_nand.QcomAkroniteRouterNAND):
     '''
 
     uboot_ddr_addr = "0x88000000"
-    machid_table = {"dk03": "8010100", "dk04-nand": "8010001", "dk06-nand": "8010005", "dk07-nand": "8010006"}
+    machid_table = {"dk03": "8010100", "dk04-nand": "8010001", "dk06-nand": "8010005", "dk07-nand": "8010006", "ea8300": "8010006"}
     uboot_network_delay = 5
 
     def boot_linux_ramboot(self):

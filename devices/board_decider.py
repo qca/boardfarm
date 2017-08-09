@@ -35,7 +35,7 @@ def board(model, **kwargs):
     if model in ("dk01-nor", "dk04-nor"):
         return qcom_dakota_nor.QcomDakotaRouterNOR(model, **kwargs)
 
-    if model in ("dk07-nand", "dk04-nand"):
+    if model in ("dk07-nand", "dk04-nand", "ea8300"):
         return qcom_dakota_nand.QcomDakotaRouterNAND(model, **kwargs)
 
     if model in ("wrt3200acm"):
