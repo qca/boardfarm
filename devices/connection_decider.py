@@ -1,6 +1,7 @@
 import ser2net_connection
 import local_serial_connection
 import ssh_connection
+import local_cmd
 
 def connection(conn_type, device, **kwargs):
     '''
@@ -14,6 +15,9 @@ def connection(conn_type, device, **kwargs):
 
     if conn_type in ("ssh"):
         return ssh_connection.SshConnection(device=device, **kwargs)
+
+    if conn_type in ("local_cmd"):
+        return local_cmd.LocalCmd(device=device, **kwargs)
 
     # Default for all other models
     print("\nWARNING: Unknown connection type  '%s'." % type)
