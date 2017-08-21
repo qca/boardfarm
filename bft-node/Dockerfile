@@ -25,3 +25,5 @@ RUN apt-get update && \
 
 RUN mkdir /var/run/sshd
 RUN sed -i 's/PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+EXPOSE 22
