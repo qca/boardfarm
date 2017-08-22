@@ -55,7 +55,7 @@ def copy_file_to_server(cmd, password):
         print_bold("Unable to copy file to server, exiting")
         raise Exception("Unable to copy file to server")
 
-def download_from_web(url, server, username, password):
+def download_from_web(url, server, username, password, port):
     try:
         urllib2.urlopen(url)
     except urllib2.HTTPError as e:
@@ -64,16 +64,16 @@ def download_from_web(url, server, username, password):
     except urllib2.URLError as e:
         print_bold("HTTP url %s returned %s, exiting" % (url, e.args))
         sys.exit(11)
-    cmd = "curl -L -k '%s' 2>/dev/null | ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -x %s@%s \"tmpfile=\`mktemp /tftpboot/tmp/XXXXX\`; cat - > \$tmpfile; chmod a+rw \$tmpfile; echo \$tmpfile\"" % (url, username, server)
+    cmd = "curl -L -k '%s' 2>/dev/null | ssh -p %s -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -x %s@%s \"tmpfile=\`mktemp /tftpboot/tmp/XXXXX\`; cat - > \$tmpfile; chmod a+rw \$tmpfile; echo \$tmpfile\"" % (url, port, username, server)
     return copy_file_to_server(cmd, password)
 
-def scp_to_tftp_server(fname, server, username, password):
+def scp_to_tftp_server(fname, server, username, password, port):
     # local file verify it exists first
     if not os.path.isfile(fname):
         print_bold("File passed as parameter does not exist! Failing!\n")
         sys.exit(10)
 
-    cmd = "cat %s | ssh -x %s@%s \"tmpfile=\`mktemp /tftpboot/tmp/XXXXX\`; cat - > \$tmpfile; chmod a+rw \$tmpfile; echo \$tmpfile\"" % (fname, username, server)
+    cmd = "cat %s | ssh -p %s -x %s@%s \"tmpfile=\`mktemp /tftpboot/tmp/XXXXX\`; cat - > \$tmpfile; chmod a+rw \$tmpfile; echo \$tmpfile\"" % (fname, port, username, server)
     return copy_file_to_server(cmd, password)
 
 def print_bold(msg):

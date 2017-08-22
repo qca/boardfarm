@@ -60,6 +60,7 @@ class OpenWrtRouter(base.BaseDevice):
                  tftp_server=None,
                  tftp_username=None,
                  tftp_password=None,
+                 tftp_port=None,
                  connection_type=None,
                  power_username=None,
                  power_password=None,
@@ -83,6 +84,8 @@ class OpenWrtRouter(base.BaseDevice):
                 self.tftp_username = tftp_username
             if tftp_password:
                 self.tftp_password = tftp_password
+            if tftp_port:
+                self.tftp_port = tftp_port
         else:
             self.tftp_server = None
         atexit.register(self.kill_console_at_exit)
@@ -194,9 +197,9 @@ class OpenWrtRouter(base.BaseDevice):
         '''Copy file to tftp server, so that it it available to tftp
         to the board itself.'''
         if fname.startswith("http://") or fname.startswith("https://"):
-            return common.download_from_web(fname, self.tftp_server, self.tftp_username, self.tftp_password)
+            return common.download_from_web(fname, self.tftp_server, self.tftp_username, self.tftp_password, self.tftp_port)
         else:
-            return common.scp_to_tftp_server(os.path.abspath(fname), self.tftp_server, self.tftp_username, self.tftp_password)
+            return common.scp_to_tftp_server(os.path.abspath(fname), self.tftp_server, self.tftp_username, self.tftp_password, self.tftp_port)
 
     def install_package(self, fname):
         '''Install OpenWrt package (opkg).'''

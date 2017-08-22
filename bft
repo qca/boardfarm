@@ -71,7 +71,7 @@ def setup_dynamic_devices(config):
                 reboot=config.reboot_vms,
                 username=device.get('username', "root"),
                 password=device.get('password', "bigfoot1"),
-                port=config.board.get('port', "22"),
+                port=device.get('port', "22"),
                 pre_cmd_host=device.get('pre_cmd_host', None),
                 cmd=device.get('cmd', None),
                 post_cmd_host=device.get('post_cmd_host', None),
@@ -111,13 +111,22 @@ def main():
             # otherwise we use the device with the 'wan' name... finally if we don't find an ip address let's
             # manually figure it out later
             tftp_server = None
+            tftp_port = "22"
             try:
                 if 'devices' in config.board:
-                    tftp_servers = [ x['ipaddr'] for x in config.board['devices'] if 'tftpd-server' in x.get('options', "") ]
-                    if len(tftp_servers) == 1:
-                        tftp_server = tftp_servers[0]
+                    tftp_dev = [ x for x in config.board['devices'] if 'tftpd-server' in x.get('options', "") ]
+                    if len(tftp_dev) == 1:
+                        tftp_server = tftp_dev[0]['ipaddr']
+                        tftp_port = tftp_dev[0].get('port', '22')
+                    else:
+                        print("WARN: more than one TFTP server is configured, please pick one")
                 elif tftp_server is None:
-                    tftp_server = [ x['ipaddr'] for x in config.board['devices'] if x['name'] == 'wan' ][0]
+                    if len(tftp_dev) == 1:
+                        tftp_dev = [ x for x in config.board['devices'] if x['name'] == 'wan' ]
+                        tftp_server = tftp_dev[0]['ipaddr']
+                        tftp_port = tftp_dev[0].get('port', '22')
+                    else:
+                        print("WARN: more than one TFTP server is configured, please pick one")
             except:
                 # if not by ipaddr let's connect to the lan device later and update
                 pass
@@ -131,6 +140,7 @@ def main():
                                                  tftp_server=config.board.get('wan_device', tftp_server),
                                                  tftp_username=config.board.get('wan_username', 'root'),
                                                  tftp_password=config.board.get('wan_password', 'bigfoot1'),
+                                                 tftp_port=config.board.get('wan_port', tftp_port),
                                                  connection_type=config.board.get('connection_type', None),
                                                  ssh_password=config.board.get('ssh_password', None),
                                                  power_username=config.board.get('power_username', None),
@@ -142,12 +152,14 @@ def main():
             if 'devices' in config.board:
                 setup_dynamic_devices(config)
 
+            # legacy wan device
             if tftp_server is None and hasattr(config, 'wan'):
                 saved = config.console.logfile_read
                 config.console.logfile_read = None
                 config.console.tftp_server = config.wan.get_ip_addr("eth0")
                 config.console.tftp_username = "root"
                 config.console.tftp_password = "bigfoot1"
+                config.console.tftp_port = "22"
                 config.console.logfile_read = saved
 
         except Exception as e:
