@@ -286,7 +286,7 @@ class OpenWrtRouter(base.BaseDevice):
                     ipaddr = self.get_interface_ipaddr(interface).strip()
                     if not ipaddr:
                         continue
-                    self.sendline("route")
+                    self.sendline("route -n")
                     self.expect(interface)
                     self.expect(self.prompt)
                 except pexpect.TIMEOUT:
